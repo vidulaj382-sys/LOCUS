@@ -3,7 +3,7 @@ function notifyApp() {}
 function engineNow() { return { DROP_ORDER, ANCHORS, rngMake, Walker, KalmanCV, Locus, measure, lsFix }; }
 function switchSite(id) {
   setSite(id); document.querySelectorAll('.site button').forEach(b => b.setAttribute('aria-pressed', b.dataset.site === id));
-  nAnch = 6; $('s-n').value = 6; $('o-n').textContent = 6; cfg.dead.clear(); cfg.obstruct.clear(); cfg.drift.clear(); resetSim(); syncScen();
+  nAnch = 6; $('s-n').value = 6; $('o-n').textContent = 6; cfg.dead.clear(); cfg.obstruct.clear(); cfg.drift.clear(); resetSim(); syncScen(); BE.push();
   PL.ready = false; benchRes = null; $('b-meta').textContent = ''; $('b-tab').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--ink3);padding:30px">Press “Run benchmark”</td></tr>';
   $('d-floor').textContent = id === 'warehouse' ? 'Floor map · Bay 1' : 'Floor map · Level 2';
   if (tabNow === 'plan') renderPlanner(); if (tabNow === 'bench') renderBench();

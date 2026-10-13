@@ -2,7 +2,7 @@
 const cfg = { sigma: 0.6, loss: 0.10, wallBias: 1.8, burst: 0.004, obstructBias: 4, driftBias: 2.5, dead: new Set(), obstruct: new Set(), drift: new Set() };
 let anchors, walker, rng, loc, frame = { out: null, truth: [3, 12] }, acc = 0, tPrev = 0, deadSeen = 0;
 function resetSim() { anchors = DROP_ORDER.slice(0, 6).map(i => ANCHORS[i]); rng = rngMake(5); walker = new Walker(1.2, 6); loc = new Locus(anchors, { N: 400, sigma: cfg.sigma, rng: rngMake(11), inflate: 2.0 }); frame = { out: null, truth: [3, 12] }; }
-function simStep() { const t = walker.step(0.1).slice(), m = measure(t, anchors, cfg, rng); frame = { truth: t, out: loc.step(m, 0.1) }; }
+function simStep() { if (BE.on) return; const t = walker.step(0.1).slice(), m = measure(t, anchors, cfg, rng); frame = { truth: t, out: loc.step(m, 0.1) }; }
 
 const STAFF = {
   hospital: { tag: 'Level 2', head: 'Find equipment fast', ph: 'Search pump, wheelchair, ECG', cats: ['All', 'Pumps', 'Wheelchairs', 'ECG', 'Oxygen'], me: [2.5, 12],
@@ -91,12 +91,12 @@ let toastT;
 function onDeadChange() {
   const d = [...cfg.dead], t = $('toast');
   if (d.length) { t.innerHTML = `<b>Anchor ${d.join(', ')} offline</b><br>Accuracy reduced nearby. Maintenance notified.`; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 5000); } else t.classList.remove('on');
-  if (view !== 'alerts' && d.length > deadSeen) { $('badge').hidden = false; $('badge').textContent = d.length - deadSeen; } updateLive();
+  if (view !== 'alerts' && d.length > deadSeen) { $('badge').hidden = false; $('badge').textContent = d.length - deadSeen; } updateLive(); BE.push();
 }
 function renderAll() { if (view === 'find') renderList(); else updateLive(); }
 function switchSite(id) {
   setSite(id); const S = STAFF[id]; ITEMS = S.items; ME = S.me; selId = ITEMS[0].id; cat = 'All'; query = ''; $('q').value = ''; $('q').placeholder = S.ph; $('tagbtn').firstChild.textContent = S.tag + ' ';
-  $('tagbtn').dataset.site = id; cfg.dead.clear(); deadSeen = 0; $('badge').hidden = true; resetSim(); buildHealth(); renderChips(); setView(view); $('toast').classList.remove('on');
+  $('tagbtn').dataset.site = id; cfg.dead.clear(); deadSeen = 0; $('badge').hidden = true; resetSim(); buildHealth(); renderChips(); setView(view); $('toast').classList.remove('on'); BE.push(); if (BE.on && BE.hooks.assets) BE.hooks.assets();
 }
 
 /* ---------- wiring ---------- */
