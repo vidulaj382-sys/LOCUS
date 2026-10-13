@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LOCUS Staff App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--aqua:#22C3E6;--aqua-d:#0E9DBE;--aqua-l:#BFE9F3;--aqua-xl:#E6F8FC;--em:#10B981;--em-d:#0B8A5E;--em-dd:#0A6B49;--em-l:#DDF6EA;--ink:#0B3A4A;--ink2:#3F6572;--ink3:#7A9AA6;--bg:#F4FCFE;--line:#CDEBF3;--amber-l:#FFF1D6;--coral-l:#FFE3E3;--grad:linear-gradient(135deg,#22C3E6 0%,#10B981 100%)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Figtree',system-ui,sans-serif;color:var(--ink);min-height:100dvh;background:linear-gradient(160deg,#E6F8FC 0%,#DDF6EA 100%)}
+h2,b.sora,.item b{font-family:'Sora',sans-serif}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--aqua);outline-offset:2px}
+[hidden]{display:none!important}
+.stage{min-height:100dvh;display:grid;place-items:center;padding:24px}
+.phone{width:410px;border-radius:50px;background:#0B3A4A;padding:10px;box-shadow:0 40px 80px rgba(11,58,74,.28)}
+.screen{border-radius:41px;overflow:hidden;background:var(--bg);height:min(844px,calc(100dvh - 68px));min-height:640px;display:flex;flex-direction:column;position:relative}
+.sbar{display:flex;justify-content:space-between;padding:12px 26px 0;font-size:12px;font-weight:700;color:#06303D;background:#22C3E6;background:linear-gradient(135deg,#22C3E6,#14BDB5)}
+.shead{padding:14px 20px 20px;background:var(--grad);border-radius:0 0 28px 28px;display:flex;flex-direction:column;gap:14px}
+.brand{display:flex;justify-content:space-between;align-items:center}
+.brand div{display:flex;gap:10px;align-items:center}
+.brand b{letter-spacing:.14em;color:#06303D;font-family:'Sora';font-size:17px}
+#tagbtn{padding:7px 12px;border-radius:999px;background:#fff;color:var(--em-dd);font-size:13px;font-weight:700}
+.shead h2{font-size:26px;color:#06303D;line-height:1.2}
+.sq{position:relative}
+.sq input{width:100%;height:52px;border:0;border-radius:16px;background:#fff;padding:0 16px 0 46px;font:500 16px 'Figtree';color:var(--ink)}
+.sq svg{position:absolute;left:16px;top:16px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.schips{display:flex;gap:8px;padding:14px 20px 0;overflow-x:auto;flex:none}
+.chip{height:44px;padding:0 16px;border-radius:999px;border:1.5px solid var(--aqua-l);background:#fff;font-size:14px;font-weight:600;flex:none}
+.chip[aria-pressed=true]{background:var(--em-d);border-color:var(--em-d);color:#fff}
+.body{flex:1;min-height:0;overflow-y:auto;padding:14px 20px 96px;display:flex;flex-direction:column;gap:12px}
+.pill{display:inline-flex;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;align-items:center}
+.pill.g{background:var(--em-l);color:var(--em-dd)}.pill.a{background:var(--amber-l);color:#8A5A00}.pill.r{background:var(--coral-l);color:#B03030}
+.item,.panel{background:#fff;border:1px solid var(--line);border-radius:20px;padding:14px;width:100%;text-align:left;box-shadow:0 6px 16px rgba(34,195,230,.08);transition:.2s}
+.item.sel{border-color:var(--em);box-shadow:0 10px 24px rgba(16,185,129,.2)}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.item b,.panel b{font-size:16px;font-weight:600}
+.item small,.panel small{display:block;color:var(--ink2);font-size:13.5px;margin-top:2px}
+canvas.mini,#fmap{display:block;width:100%;margin-top:12px;border-radius:14px;border:1px solid var(--line);aspect-ratio:40/24;background:#fff}
+#fmap{margin-top:0}
+.go{margin-top:12px;width:100%;height:50px;border-radius:14px;background:var(--grad);color:#fff;font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px}
+.go.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--aqua-l);height:42px;font-size:14px;margin-top:10px}
+.bar{height:8px;border-radius:99px;background:#E7F5F9;overflow:hidden;margin-top:12px}.bar i{display:block;height:100%;border-radius:99px;transition:width .35s}
+.item.dead{opacity:.75}
+.empty{text-align:center;color:var(--ink3);padding:30px 10px;font-size:14px}
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:76px;background:rgba(255,255,255,.96);border-top:1px solid var(--line);display:flex;padding-bottom:6px}
+.tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12px;font-weight:700;color:var(--ink3);position:relative}
+.tabbar button.on{color:var(--em-d)}
+#badge{position:absolute;top:10px;left:calc(50% + 6px);min-width:18px;height:18px;border-radius:99px;background:#EF6A6A;color:#fff;font-size:11px;display:grid;place-items:center;padding:0 5px}
+.toast{position:absolute;left:14px;right:14px;top:56px;background:#fff;border:1px solid #F5A524;border-left:5px solid #F5A524;border-radius:14px;padding:10px 12px;font-size:13px;box-shadow:0 10px 24px rgba(0,0,0,.14);transform:translateY(-14px);opacity:0;pointer-events:none;transition:.35s;z-index:5}
+.toast.on{transform:none;opacity:1}
+@media(max-width:480px){.stage{padding:0}.phone{width:100%;border-radius:0;padding:0;box-shadow:none;background:none}.screen{border-radius:0;height:100dvh}.sbar{display:none}.shead{padding-top:max(18px,env(safe-area-inset-top))}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="stage"><div class="phone"><div class="screen">
+  <div class="sbar"><span>9:41</span><span>●●● 5G ▮</span></div>
+  <div class="toast" id="toast" role="status"></div>
+  <div class="shead">
+    <div class="brand">
+      <div><svg width="32" height="32" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="12" fill="#fff"/><circle cx="20" cy="20" r="9" fill="none" stroke="#0B8A5E" stroke-width="2.6"/><path d="M20 6v7M20 27v7M6 20h7M27 20h7" stroke="#0B8A5E" stroke-width="2.6" stroke-linecap="round"/><circle cx="20" cy="20" r="3" fill="#0B8A5E"/></svg><b>LOCUS</b></div>
+      <button id="tagbtn" aria-label="Switch site">Level 2 ⇄</button>
+    </div>
+    <h2 id="s-h">Find equipment fast</h2>
+    <div class="sq" id="sq"><label class="sr" for="q">Search</label><input id="q" type="text" placeholder="Search pump, wheelchair, ECG" autocomplete="off"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="6" fill="none" stroke="#0B8A5E" stroke-width="2"/><path d="M14 14l4 4" stroke="#0B8A5E" stroke-width="2" stroke-linecap="round"/></svg></div>
+  </div>
+  <div class="schips" id="schips"></div>
+  <div class="body" id="v-find"><div id="slist" style="display:flex;flex-direction:column;gap:12px"></div></div>
+  <div class="body" id="v-map" hidden><canvas id="fmap" width="720" height="432" aria-label="Live floor map"></canvas><div class="panel" id="msel"></div></div>
+  <div class="body" id="v-alerts" hidden>
+    <div class="panel"><div class="row"><div id="hsum"></div><span id="hpill" class="pill g">Healthy</span></div></div>
+    <div id="hlist" style="display:flex;flex-direction:column;gap:12px"></div>
+  </div>
+  <div class="tabbar">
+    <button class="on" data-v="find"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>Find</button>
+    <button data-v="map"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/></svg>Map</button>
+    <button data-v="alerts"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9a6 6 0 0 1 12 0c0 6 3 7 3 7H3s3-1 3-7zM10 20a2 2 0 0 0 4 0"/></svg>Alerts<span id="badge" hidden>1</span></button>
+  </div>
+</div></div></div>
+<script>
+/* ===== LOCUS engine: simulator, baselines, trust scorer, map-aware particle filter ===== */
+const FLOOR = { w: 40, h: 24 };
+const TOP_DOORS = [5, 15, 25, 35], BOT_DOORS = [6, 17, 27, 36], DOOR_HALF = 1.2;
+/* ---- sites: hospital floor and warehouse (same 40 x 24 m footprint) ---- */
+let SITE_ID = 'hospital', ROOMS, WALLS, ANCHORS, DROP_ORDER, WAYPOINTS, FALLBACK = 'corr';
+function hospitalSite() {
+  const rooms = [
+    { id: 'wardA', name: 'Ward A', r: [0, 0, 10, 9] }, { id: 'wardB', name: 'Ward B', r: [10, 0, 20, 9] },
+    { id: 'icu', name: 'ICU', r: [20, 0, 30, 9] }, { id: 'pharm', name: 'Pharmacy', r: [30, 0, 40, 9] },
+    { id: 'corr', name: 'Corridor', r: [0, 9, 40, 15] },
+    { id: 'recep', name: 'Reception', r: [0, 15, 12, 24] }, { id: 'store', name: 'Store', r: [12, 15, 22, 24] },
+    { id: 'radio', name: 'Radiology', r: [22, 15, 32, 24] }, { id: 'ot', name: 'OT', r: [32, 15, 40, 24] },
+  ];
+  const W = [], hseg = (y, doors) => { let c = 0; doors.forEach(d => { W.push([c, y, d - DOOR_HALF, y]); c = d + DOOR_HALF; }); W.push([c, y, FLOOR.w, y]); };
+  hseg(9, TOP_DOORS); hseg(15, BOT_DOORS);
+  [10, 20, 30].forEach(x => W.push([x, 0, x, 9])); [12, 22, 32].forEach(x => W.push([x, 15, x, 24]));
+  W.push([0, 0, FLOOR.w, 0], [0, FLOOR.h, FLOOR.w, FLOOR.h], [0, 0, 0, FLOOR.h], [FLOOR.w, 0, FLOOR.w, FLOOR.h]);
+  return { rooms, walls: W, fallback: 'corr',
+    anchors: [{ id: 'A1', x: 1.5, y: 13.5 }, { id: 'A2', x: 15, y: 1.5 }, { id: 'A3', x: 25, y: 10.5 }, { id: 'A4', x: 38.5, y: 13.5 }, { id: 'A5', x: 28, y: 22.5 }, { id: 'A6', x: 7, y: 22.5 }],
+    drop: [2, 5, 1, 3, 0, 4],
+    way: [[3, 12], [15, 12], [15, 4], [15, 12], [25, 12], [25, 4], [25, 12], [36, 12], [36, 19.5], [36, 12], [27, 12], [27, 19.5], [27, 12], [6, 12], [6, 19.5], [6, 12]] };
+}
+function warehouseSite() {
+  const rooms = [{ id: 'recv', name: 'Receiving', r: [0, 0, 8, 24] }, { id: 'aisA', name: 'Aisle A', r: [8, 0, 16, 24] }, { id: 'aisB', name: 'Aisle B', r: [16, 0, 24, 24] }, { id: 'aisC', name: 'Aisle C', r: [24, 0, 32, 24] }, { id: 'disp', name: 'Dispatch', r: [32, 0, 40, 24] }];
+  const W = []; [8, 16, 24, 32].forEach(x => { W.push([x, 0, x, 10.5], [x, 13.5, x, 24]); });
+  [12, 20, 28].forEach(x => { W.push([x - 1.8, 4, x + 1.8, 4], [x - 1.8, 20, x + 1.8, 20]); }); // end-cap shelves
+  W.push([0, 0, FLOOR.w, 0], [0, FLOOR.h, FLOOR.w, FLOOR.h], [0, 0, 0, FLOOR.h], [FLOOR.w, 0, FLOOR.w, FLOOR.h]);
+  return { rooms, walls: W, fallback: 'recv',
+    anchors: [{ id: 'A1', x: 1.5, y: 21 }, { id: 'A2', x: 12, y: 1.5 }, { id: 'A3', x: 20, y: 12 }, { id: 'A4', x: 28, y: 22.5 }, { id: 'A5', x: 38.5, y: 3 }, { id: 'A6', x: 38.5, y: 21 }],
+    drop: [2, 5, 1, 3, 0, 4],
+    way: [[3, 12], [12, 12], [12, 7], [12, 17], [12, 12], [20, 12], [20, 7], [20, 17], [20, 12], [28, 12], [28, 7], [28, 17], [28, 12], [36, 12], [36, 5], [36, 19], [36, 12]] };
+}
+function setSite(id) { const S = id === 'warehouse' ? warehouseSite() : hospitalSite(); SITE_ID = id; ROOMS = S.rooms; WALLS = S.walls; ANCHORS = S.anchors; DROP_ORDER = S.drop; WAYPOINTS = S.way; FALLBACK = S.fallback; }
+setSite('hospital');
+
+function roomAt(x, y) { for (const r of ROOMS) { const [a, b, c, d] = r.r; if (x >= a && x < c && y >= b && y < d) return r.id; } return FALLBACK; }
+function roomName(id) { return ROOMS.find(r => r.id === id).name; }
+function segInt(ax, ay, bx, by, cx, cy, dx, dy) {
+  const d1x = bx - ax, d1y = by - ay, d2x = dx - cx, d2y = dy - cy;
+  const den = d1x * d2y - d1y * d2x; if (Math.abs(den) < 1e-12) return false;
+  const t = ((cx - ax) * d2y - (cy - ay) * d2x) / den, u = ((cx - ax) * d1y - (cy - ay) * d1x) / den;
+  return t > 1e-6 && t < 1 - 1e-6 && u >= 0 && u <= 1;
+}
+function wallsBetween(ax, ay, bx, by) { let k = 0; for (const w of WALLS) if (segInt(ax, ay, bx, by, w[0], w[1], w[2], w[3])) k++; return k; }
+function crossesWall(ax, ay, bx, by) { for (const w of WALLS) if (segInt(ax, ay, bx, by, w[0], w[1], w[2], w[3])) return true; return false; }
+
+function rngMake(seed) { let a = seed >>> 0; const f = () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; f.g = () => { let u = 0, v = 0; while (!u) u = f(); v = f(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }; return f; }
+
+/* Walker along waypoint loop */
+class Walker {
+  constructor(speed = 1.2, offset = 0) { this.i = 0; this.pos = WAYPOINTS[0].slice(); this.speed = speed; this.vel = [0, 0]; if (offset) this.advance(offset); }
+  advance(dist) { while (dist > 0) { const t = WAYPOINTS[(this.i + 1) % WAYPOINTS.length], dx = t[0] - this.pos[0], dy = t[1] - this.pos[1], d = Math.hypot(dx, dy); if (d <= dist) { this.pos = t.slice(); this.i = (this.i + 1) % WAYPOINTS.length; dist -= d; } else { this.pos[0] += dx / d * dist; this.pos[1] += dy / d * dist; dist = 0; } } }
+  step(dt) { const o = this.pos.slice(); this.advance(this.speed * dt); this.vel = [(this.pos[0] - o[0]) / dt, (this.pos[1] - o[1]) / dt]; return this.pos; }
+}
+
+/* Radio simulator: noise, packet loss, wall (NLOS) bias, dead anchors, drift, forced obstruction */
+function measure(pos, anchors, cfg, rng) {
+  return anchors.map((a, i) => {
+    if (cfg.dead && cfg.dead.has(a.id)) return null;
+    if (rng() < cfg.loss) return null;
+    const d = Math.hypot(pos[0] - a.x, pos[1] - a.y), k = wallsBetween(a.x, a.y, pos[0], pos[1]);
+    let bias = k * cfg.wallBias * (0.5 + rng()), nlos = k > 0;
+    if (cfg.obstruct && cfg.obstruct.has(a.id)) { bias += cfg.obstructBias * (0.6 + 0.8 * rng()); nlos = true; }
+    if (cfg.burst) { const st = rng._b || (rng._b = {}); if (!st[a.id] && rng() < cfg.burst) st[a.id] = 20 + (rng() * 30 | 0); if (st[a.id] > 0) { st[a.id]--; bias += 3.2; nlos = true; } }
+    if (cfg.drift && cfg.drift.has(a.id)) { bias += cfg.driftBias; nlos = true; }
+    const sigma = cfg.sigma * (nlos ? 1.8 : 1);
+    return { r: Math.max(0.3, d + bias + sigma * rng.g()), nlos, bias };
+  });
+}
+
+/* Plain trilateration: Gauss-Newton least squares (optionally weighted) */
+function lsFix(anchors, meas, init, w) {
+  let x = init[0], y = init[1], n = 0;
+  for (let it = 0; it < 12; it++) {
+    let a11 = 1e-3, a12 = 0, a22 = 1e-3, b1 = 0, b2 = 0; n = 0;
+    for (let i = 0; i < anchors.length; i++) {
+      const m = meas[i]; if (!m) continue; n++;
+      const dx = x - anchors[i].x, dy = y - anchors[i].y, d = Math.max(0.2, Math.hypot(dx, dy)), ux = dx / d, uy = dy / d, res = m.r - d, wt = w ? w[i] : 1;
+      a11 += wt * ux * ux; a12 += wt * ux * uy; a22 += wt * uy * uy; b1 += wt * ux * res; b2 += wt * uy * res;
+    }
+    if (!n) return null;
+    const lam = n < 3 ? 0.6 : 0.05, det = (a11 + lam) * (a22 + lam) - a12 * a12;
+    x += ((a22 + lam) * b1 - a12 * b2) / det; y += ((a11 + lam) * b2 - a12 * b1) / det;
+  }
+  return [Math.min(FLOOR.w, Math.max(0, x)), Math.min(FLOOR.h, Math.max(0, y))];
+}
+/* Baseline B: trilateration + constant-velocity Kalman filter (what most teams build) */
+class KalmanCV {
+  constructor() { this.x = null; }
+  update(z, dt) {
+    if (!z) { if (this.x) { this.x[0] += this.x[2] * dt; this.x[1] += this.x[3] * dt; } return this.x ? [this.x[0], this.x[1]] : null; }
+    if (!this.x) { this.x = [z[0], z[1], 0, 0]; this.P = [10, 10, 4, 4]; return z.slice(); }
+    const q = 0.4 * dt, R = 2.0;
+    for (let k = 0; k < 2; k++) {
+      let p = this.x[k], v = this.x[k + 2], P = this.P[k], Pv = this.P[k + 2];
+      p += v * dt; P += dt * dt * Pv + q; Pv += q;
+      const K = P / (P + R), K2 = (Pv * 0.2) / (P + R); const inn = z[k] - p;
+      p += K * inn; v += K2 / Math.max(dt, 1e-3) * inn * 0.5; P *= (1 - K);
+      this.x[k] = p; this.x[k + 2] = v; this.P[k] = P; this.P[k + 2] = Pv;
+    }
+    return [this.x[0], this.x[1]];
+  }
+}
+
+/* wall-count lookup per anchor (0.5 m grid) so the filter can predict wall bias for any particle */
+const KCACHE = {};
+function kGrid(a) {
+  const key = SITE_ID + a.id + ':' + a.x + ',' + a.y; if (KCACHE[key]) return KCACHE[key];
+  const W = FLOOR.w * 2, H = FLOOR.h * 2, g = new Uint8Array(W * H);
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) g[j * W + i] = wallsBetween(a.x, a.y, (i + 0.5) / 2, (j + 0.5) / 2);
+  return KCACHE[key] = g;
+}
+function kAt(g, x, y) { const i = Math.min(FLOOR.w * 2 - 1, Math.max(0, x * 2 | 0)), j = Math.min(FLOOR.h * 2 - 1, Math.max(0, y * 2 | 0)); return g[j * FLOOR.w * 2 + i]; }
+
+/* LOCUS: trust scorer + weighted robust fix + map-aware particle filter */
+class Locus {
+  constructor(anchors, opts = {}) {
+    this.anchors = anchors; this.N = opts.N || 600; this.sigma = opts.sigma || 0.6; this.rng = opts.rng || rngMake(7);
+    this.inflate = opts.inflate || 1.0; this.wallMu = opts.wallMu || 1.4; this.kg = anchors.map(kGrid);
+    this.px = new Float64Array(this.N); this.py = new Float64Array(this.N); this.vx = new Float64Array(this.N); this.vy = new Float64Array(this.N); this.w = new Float64Array(this.N).fill(1 / this.N);
+    this.inited = false; this.trust = anchors.map(() => 0.8); this.last = anchors.map(() => null); this.silent = anchors.map(() => 0); this.hist = anchors.map(() => []);
+    this.est = null; this.fix = null;
+  }
+  _init(meas) {
+    const c = [FLOOR.w / 2, FLOOR.h / 2], f = lsFix(this.anchors, meas, c) || c, r = this.rng;
+    for (let i = 0; i < this.N; i++) { this.px[i] = Math.min(FLOOR.w - .1, Math.max(.1, f[0] + r.g() * 3.5)); this.py[i] = Math.min(FLOOR.h - .1, Math.max(.1, f[1] + r.g() * 3.5)); this.vx[i] = r.g() * .5; this.vy[i] = r.g() * .5; }
+    this.inited = true; this.est = f.slice();
+  }
+  _moments() {
+    let mx = 0, my = 0, sw = 0; for (let i = 0; i < this.N; i++) { const q = this.w[i]; mx += q * this.px[i]; my += q * this.py[i]; sw += q; }
+    mx /= sw; my /= sw; let sxx = 0, sxy = 0, syy = 0;
+    for (let i = 0; i < this.N; i++) { const q = this.w[i], dx = this.px[i] - mx, dy = this.py[i] - my; sxx += q * dx * dx; sxy += q * dx * dy; syy += q * dy * dy; }
+    return { mx, my, sxx: sxx / sw, sxy: sxy / sw, syy: syy / sw };
+  }
+  step(meas, dt) {
+    const A = this.anchors, r = this.rng, N = this.N, sg = this.sigma;
+    if (!this.inited) { if (!meas.some(Boolean)) return null; this._init(meas); }
+    /* 1. predict (motion history) */
+    for (let i = 0; i < N; i++) {
+      const ox = this.px[i], oy = this.py[i];
+      this.vx[i] = this.vx[i] * 0.96 + r.g() * 0.28; this.vy[i] = this.vy[i] * 0.96 + r.g() * 0.28;
+      const sp = Math.hypot(this.vx[i], this.vy[i]); if (sp > 2.2) { this.vx[i] *= 2.2 / sp; this.vy[i] *= 2.2 / sp; }
+      let nx = ox + this.vx[i] * dt + r.g() * 0.05, ny = oy + this.vy[i] * dt + r.g() * 0.05;
+      if (nx < 0 || ny < 0 || nx > FLOOR.w || ny > FLOOR.h || crossesWall(ox, oy, nx, ny)) { nx = ox; ny = oy; this.vx[i] *= -0.2; this.vy[i] *= -0.2; this.w[i] *= 0.2; }
+      this.px[i] = nx; this.py[i] = ny;
+    }
+    const pm = this._moments(), prior = [pm.mx, pm.my], priorStd = Math.sqrt(Math.max(0.04, (pm.sxx + pm.syy) / 2));
+    /* 2. trust scorer: residual vs motion prior, jump, variance -> 0..1 + reason */
+    const reasons = [], usable = [], tRs = [];
+    A.forEach((a, i) => {
+      const m = meas[i];
+      if (!m) { this.silent[i] += dt; this.trust[i] = Math.max(0, this.trust[i] - dt * 0.8); reasons[i] = this.silent[i] > 1 ? 'No packets for ' + this.silent[i].toFixed(0) + ' s' : 'Packet lost'; usable[i] = false; return; }
+      this.silent[i] = 0;
+      const kp = kAt(this.kg[i], prior[0], prior[1]), pred = Math.hypot(prior[0] - a.x, prior[1] - a.y) + kp * this.wallMu, res = m.r - pred, s = Math.sqrt(sg * sg + priorStd * priorStd + Math.pow(kp * 0.8, 2));
+      const tol = res > 0 ? 2.0 * s : 3.2 * s, zr = Math.abs(res) / tol, tR = 1 / (1 + Math.pow(zr, 3));
+      const h = this.hist[i]; h.push(m.r); if (h.length > 8) h.shift();
+      const jump = this.last[i] == null ? 0 : Math.abs(m.r - this.last[i]), jx = Math.max(0, jump - 0.25 - 3 * sg), tJ = 1 / (1 + Math.pow(jx / (3 * sg), 2));
+      let vr = 0; if (h.length > 3) { const mu = h.reduce((p, c) => p + c, 0) / h.length; vr = Math.sqrt(h.reduce((p, c) => p + (c - mu) * (c - mu), 0) / h.length); }
+      const tV = 1 / (1 + Math.pow(Math.max(0, vr - 1.6 * sg) / (1.5 * sg), 2));
+      tRs.push(tR); const raw = Math.max(0.02, tR * tJ * Math.sqrt(tV)); this.trust[i] = this.trust[i] * 0.55 + raw * 0.45; this.last[i] = m.r;
+      let why = 'Consistent with motion model';
+      if (this.trust[i] < 0.7) { if (tR <= tJ && tR <= tV) why = res > 0 ? 'Reads +' + res.toFixed(1) + ' m beyond what the walls explain (obstruction)' : 'Reads ' + (-res).toFixed(1) + ' m shorter than predicted'; else if (tJ <= tV) why = 'Sudden ' + jump.toFixed(1) + ' m jump between readings'; else why = 'Variance spike (σ ' + vr.toFixed(1) + ' m)'; }
+      reasons[i] = why; usable[i] = true;
+    });
+    /* collective disagreement => our prior is probably wrong, not the anchors: relocalise */
+    const lost = tRs.length >= 2 && tRs.filter(t => t < 0.3).length >= Math.ceil(tRs.length * 0.6);
+    this.lostN = lost ? (this.lostN || 0) + 1 : 0; const relocal = this.lostN >= 3;
+    /* 3. trust-weighted robust fix from the motion prior */
+    const wTrust = this.trust.map((t, i) => usable[i] ? t : 0);
+    this.fix = wTrust.some(t => t > 0.05) ? lsFix(A, meas, prior, wTrust.map(t => t * t)) : null;
+    /* 4. particle weight update with trust-inflated sigma + heavy-tail mix */
+    if (relocal) { const f = lsFix(A, meas, prior); if (f) for (let p = 0; p < N * 0.15; p++) { const j = (r() * N) | 0; this.px[j] = Math.min(FLOOR.w - .1, Math.max(.1, f[0] + r.g() * 3)); this.py[j] = Math.min(FLOOR.h - .1, Math.max(.1, f[1] + r.g() * 3)); this.w[j] = 1 / N; } }
+    let sw = 0; const eps = 0.04;
+    for (let p = 0; p < N; p++) {
+      let lw = Math.log(this.w[p] + 1e-300);
+      for (let i = 0; i < A.length; i++) { const m = meas[i]; if (!m || !usable[i]) continue; const t = relocal ? Math.max(this.trust[i], 0.45) : this.trust[i]; if (t < 0.08) continue; const kk = kAt(this.kg[i], this.px[p], this.py[p]), si = Math.sqrt(sg * sg / t + Math.pow(kk * 0.8, 2)) + 0.15, d = Math.hypot(this.px[p] - A[i].x, this.py[p] - A[i].y) + kk * this.wallMu, z = (m.r - d) / si; lw += Math.log((1 - eps) * Math.exp(-0.5 * z * z) / si + eps / 25); }
+      this.w[p] = Math.exp(lw); sw += this.w[p];
+    }
+    if (!(sw > 0)) { this.w.fill(1 / N); sw = 1; }
+    let ess = 0; for (let p = 0; p < N; p++) { this.w[p] /= sw; ess += this.w[p] * this.w[p]; } ess = 1 / ess;
+    /* 5. estimate + 90% ellipse + room probabilities */
+    const mo = this._moments(), cxx = mo.sxx, cyy = mo.syy, cxy = mo.sxy;
+    const tr = cxx + cyy, det = cxx * cyy - cxy * cxy, disc = Math.sqrt(Math.max(0, tr * tr / 4 - det)), l1 = tr / 2 + disc, l2 = Math.max(1e-4, tr / 2 - disc);
+    const k = 4.605 * this.inflate * this.inflate, ell = { a: Math.max(0.35, Math.sqrt(k * l1)), b: Math.max(0.3, Math.sqrt(k * l2)), th: 0.5 * Math.atan2(2 * cxy, cxx - cyy) };
+    const rp = {}; for (let p = 0; p < N; p++) { const id = roomAt(this.px[p], this.py[p]); rp[id] = (rp[id] || 0) + this.w[p]; }
+    this.est = [mo.mx, mo.my];
+    /* self-calibration: re-fit wall bias (m per wall) from readings we trust */
+    A.forEach((a, i) => { const m = meas[i]; if (!m || !usable[i] || this.trust[i] < 0.5) return; const ke = kAt(this.kg[i], mo.mx, mo.my); if (ke < 1) return; const mu = (m.r - Math.hypot(mo.mx - a.x, mo.my - a.y)) / ke; this.wallMu = Math.min(3.5, Math.max(0.8, this.wallMu + 0.02 * (mu - this.wallMu))); });
+    const out = { wallMu: this.wallMu, pos: this.est.slice(), ell, rooms: rp, trust: this.trust.slice(), reasons, usable, fix: this.fix, ess: ess / N, relocal };
+    /* 6. resample + roughen */
+    if (ess < N * 0.6) {
+      const nx = new Float64Array(N), ny = new Float64Array(N), nvx = new Float64Array(N), nvy = new Float64Array(N); let c = this.w[0], idx = 0; const u0 = r() / N;
+      for (let j = 0; j < N; j++) { const u = u0 + j / N; while (u > c && idx < N - 1) { idx++; c += this.w[idx]; } nx[j] = this.px[idx] + r.g() * 0.07; ny[j] = this.py[idx] + r.g() * 0.07; nvx[j] = this.vx[idx]; nvy[j] = this.vy[idx]; }
+      this.px = nx; this.py = ny; this.vx = nvx; this.vy = nvy; this.w.fill(1 / N);
+    }
+    return out;
+  }
+}
+if (typeof module !== 'undefined') module.exports = { get ROOMS() { return ROOMS; }, get WALLS() { return WALLS; }, get ANCHORS() { return ANCHORS; }, get DROP_ORDER() { return DROP_ORDER; }, get WAYPOINTS() { return WAYPOINTS; }, FLOOR, setSite, roomAt, roomName, wallsBetween, crossesWall, rngMake, Walker, measure, lsFix, KalmanCV, Locus };
+
+/* ================= LOCUS UI ================= */
+const $ = id => document.getElementById(id);
+const C = { aqua: '#22C3E6', aquaD: '#0E9DBE', aquaL: '#BFE9F3', em: '#10B981', emD: '#0B8A5E', ink: '#0B3A4A', amber: '#F5A524', coral: '#EF6A6A', slate: '#7C93C3' };
+const SC = 30; // px per metre on the 1200x720 canvases
+const trustCol = t => t > 0.7 ? C.em : t > 0.4 ? C.amber : C.coral;
+const pct = v => Math.round(v * 100);
+let tabNow = 'dash';
+
+/* ---------- shared floor drawing ---------- */
+function drawFloor(ctx, o = {}) {
+  const s = o.scale || SC; ctx.save(); ctx.clearRect(0, 0, FLOOR.w * s, FLOOR.h * s);
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, FLOOR.w * s, FLOOR.h * s);
+  ROOMS.forEach(r => {
+    const [a, b, c, d] = r.r; const hot = o.hot && o.hot[r.id] || 0;
+    ctx.fillStyle = r.id === 'corr' ? '#F2FBFD' : '#FAFEFF'; ctx.fillRect(a * s, b * s, (c - a) * s, (d - b) * s);
+    if (hot > 0.02) { ctx.fillStyle = `rgba(16,185,129,${Math.min(0.32, hot * 0.36)})`; ctx.fillRect(a * s, b * s, (c - a) * s, (d - b) * s); }
+    if (!o.noLabels) { ctx.fillStyle = 'rgba(11,58,74,.42)'; ctx.font = `600 ${Math.round(s * 0.5)}px Figtree, sans-serif`; ctx.textAlign = 'center'; ctx.fillText(r.name.toUpperCase(), (a + c) / 2 * s, (SITE_ID === 'warehouse' ? 8.2 : b + (b === 0 ? 8.1 : 1.15)) * s); }
+  });
+  ctx.strokeStyle = o.wallCol || '#7FCBDF'; ctx.lineWidth = Math.max(2, s * 0.14); ctx.lineCap = 'round'; ctx.beginPath();
+  WALLS.forEach(w => { ctx.moveTo(w[0] * s, w[1] * s); ctx.lineTo(w[2] * s, w[3] * s); }); ctx.stroke(); ctx.restore();
+}
+function drawEllipse(ctx, e, cx, cy, s, fill, stroke) {
+  ctx.save(); ctx.translate(cx * s, cy * s); ctx.rotate(e.th); ctx.beginPath(); ctx.ellipse(0, 0, e.a * s, e.b * s, 0, 0, 7); ctx.fillStyle = fill; ctx.fill(); ctx.strokeStyle = stroke; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
+}
+
+
+/* ================= LOCUS STAFF APP (standalone) ================= */
+const cfg = { sigma: 0.6, loss: 0.10, wallBias: 1.8, burst: 0.004, obstructBias: 4, driftBias: 2.5, dead: new Set(), obstruct: new Set(), drift: new Set() };
+let anchors, walker, rng, loc, frame = { out: null, truth: [3, 12] }, acc = 0, tPrev = 0, deadSeen = 0;
+function resetSim() { anchors = DROP_ORDER.slice(0, 6).map(i => ANCHORS[i]); rng = rngMake(5); walker = new Walker(1.2, 6); loc = new Locus(anchors, { N: 400, sigma: cfg.sigma, rng: rngMake(11), inflate: 2.0 }); frame = { out: null, truth: [3, 12] }; }
+function simStep() { const t = walker.step(0.1).slice(), m = measure(t, anchors, cfg, rng); frame = { truth: t, out: loc.step(m, 0.1) }; }
+
+const STAFF = {
+  hospital: { tag: 'Level 2', head: 'Find equipment fast', ph: 'Search pump, wheelchair, ECG', cats: ['All', 'Pumps', 'Wheelchairs', 'ECG', 'Oxygen'], me: [2.5, 12],
+    items: [
+      { id: 'P-12', name: 'Infusion pump P-12', cat: 'Pumps', live: true },
+      { id: 'W-3', name: 'Wheelchair W-3', cat: 'Wheelchairs', pos: [8.5, 12.3], conf: 91 },
+      { id: 'E-7', name: 'ECG machine E-7', cat: 'ECG', pos: [27, 19.5], conf: 88 },
+      { id: 'P-07', name: 'Infusion pump P-07', cat: 'Pumps', pos: [4.5, 4.5], conf: 93 },
+      { id: 'W-9', name: 'Wheelchair W-9', cat: 'Wheelchairs', pos: [35, 4.8], conf: 86 },
+      { id: 'O-2', name: 'Oxygen cylinder O-2', cat: 'Oxygen', pos: [16.5, 20], conf: 94 }] },
+  warehouse: { tag: 'Bay 1', head: 'Find stock fast', ph: 'Search forklift, pallet, scanner', cats: ['All', 'Vehicles', 'Pallets', 'Tools'], me: [2.5, 12],
+    items: [
+      { id: 'FL-2', name: 'Forklift FL-2', cat: 'Vehicles', live: true },
+      { id: 'PJ-4', name: 'Pallet jack PJ-4', cat: 'Vehicles', pos: [6, 8], conf: 92 },
+      { id: 'PL-1042', name: 'Pallet #1042 (frozen)', cat: 'Pallets', pos: [20, 18], conf: 89 },
+      { id: 'PL-0877', name: 'Pallet #0877', cat: 'Pallets', pos: [28, 6], conf: 90 },
+      { id: 'SC-9', name: 'Handheld scanner SC-9', cat: 'Tools', pos: [36, 14], conf: 85 },
+      { id: 'C-11', name: 'Picking cart C-11', cat: 'Vehicles', pos: [12.5, 17.5], conf: 91 }] },
+};
+let ITEMS = STAFF.hospital.items, ME = STAFF.hospital.me, selId = ITEMS[0].id, cat = 'All', query = '', view = 'find';
+
+function route(to) {
+  const near = (arr, v) => arr.reduce((b, x) => Math.abs(x - v) < Math.abs(b - v) ? x : b, arr[0]), pts = [ME];
+  if (SITE_ID === 'warehouse') { if (to[0] < 8) pts.push([to[0], 12]); else { const ax = near([12, 20, 28, 36], to[0]); pts.push([ax, 12], [ax, to[1]]); } }
+  else { const d = to[1] < 9 ? TOP_DOORS : to[1] > 15 ? BOT_DOORS : null; if (!d) pts.push([to[0], 12]); else { const dx = near(d, to[0]); pts.push([dx, 12], [dx, to[1] < 9 ? 6 : 18]); } }
+  pts.push(to); return pts;
+}
+function rlen(p) { let s = 0; for (let i = 1; i < p.length; i++) s += Math.hypot(p[i][0] - p[i - 1][0], p[i][1] - p[i - 1][1]); return s; }
+function itemInfo(it) {
+  if (it.live) { const o = frame.out; if (!o) return { pos: [15, 12], zone: 'Locating…', conf: 0, ell: null }; const top = Object.entries(o.rooms).sort((a, b) => b[1] - a[1])[0]; return { pos: o.pos, zone: roomName(top[0]), conf: pct(top[1]), ell: o.ell }; }
+  return { pos: it.pos, zone: roomName(roomAt(it.pos[0], it.pos[1])), conf: it.conf, ell: null };
+}
+const confCls = c => 'pill ' + (c >= 85 ? 'g' : c >= 60 ? 'a' : 'r');
+
+/* ---------- views ---------- */
+function setView(v) {
+  view = v; ['find', 'map', 'alerts'].forEach(k => { $('v-' + k).hidden = k !== v; });
+  document.querySelectorAll('.tabbar button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  $('s-h').textContent = v === 'find' ? STAFF[SITE_ID].head : v === 'map' ? 'Live floor map' : 'System health';
+  $('sq').hidden = v !== 'find'; $('schips').hidden = v === 'alerts';
+  if (v === 'alerts') { deadSeen = cfg.dead.size; $('badge').hidden = true; } renderAll();
+}
+function renderChips() { const b = $('schips'); b.innerHTML = STAFF[SITE_ID].cats.map(c => `<button class="chip" aria-pressed="${c === cat}">${c}</button>`).join(''); b.querySelectorAll('button').forEach(x => x.onclick = () => { cat = x.textContent; renderChips(); renderAll(); }); }
+function filtered() { const q = query.trim().toLowerCase(); return ITEMS.filter(i => (cat === 'All' || i.cat === cat) && (!q || (i.name + ' ' + i.cat).toLowerCase().includes(q))); }
+function renderList() {
+  const box = $('slist'), list = filtered(); box.innerHTML = '';
+  if (!list.length) { box.innerHTML = '<p class="empty">No match. Try another word.</p>'; return; }
+  list.forEach(it => {
+    const sel = it.id === selId, d = document.createElement('div'); d.className = 'item' + (sel ? ' sel' : ''); d.tabIndex = 0; d.setAttribute('role', 'button'); d.dataset.id = it.id;
+    d.innerHTML = `<div class="row"><div><b>${it.name}</b><small data-sub></small></div><span data-conf></span></div>` + (sel ? `<canvas class="mini" width="720" height="432"></canvas><button class="go"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M3 11l18-8-8 18-2-8z"/></svg>Navigate to ${it.id}</button>` : '');
+    d.onclick = () => { if (selId !== it.id) { selId = it.id; renderList(); } }; d.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); d.click(); } }; box.appendChild(d);
+  }); updateLive();
+}
+function drawMini(c, it, full) {
+  const ctx = c.getContext('2d'), s = c.width / FLOOR.w; drawFloor(ctx, { scale: s, noLabels: true });
+  ctx.save(); ctx.font = `600 ${Math.round(s * 0.6)}px Figtree`; ctx.fillStyle = 'rgba(11,58,74,.42)'; ctx.textAlign = 'center'; ROOMS.forEach(r => ctx.fillText(r.name, (r.r[0] + r.r[2]) / 2 * s, (SITE_ID === 'warehouse' ? 8.2 : r.r[1] === 0 ? 8.1 : r.r[1] + 1.3) * s)); ctx.restore();
+  const sel = ITEMS.find(i => i.id === selId), si = itemInfo(sel), rt = route(si.pos);
+  ctx.save(); ctx.setLineDash([8, 7]); ctx.lineWidth = 4; ctx.strokeStyle = C.aqua; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); rt.forEach((p, i) => i ? ctx.lineTo(p[0] * s, p[1] * s) : ctx.moveTo(p[0] * s, p[1] * s)); ctx.stroke(); ctx.restore();
+  (full ? filtered() : [it]).forEach(x => {
+    const inf = itemInfo(x), on = x.id === selId;
+    if (inf.ell) drawEllipse(ctx, inf.ell, inf.pos[0], inf.pos[1], s, 'rgba(16,185,129,.2)', 'rgba(16,185,129,.9)'); else if (on) { ctx.beginPath(); ctx.arc(inf.pos[0] * s, inf.pos[1] * s, 1.2 * s, 0, 7); ctx.fillStyle = 'rgba(16,185,129,.18)'; ctx.fill(); }
+    ctx.beginPath(); ctx.arc(inf.pos[0] * s, inf.pos[1] * s, on ? 10 : 7, 0, 7); ctx.fillStyle = on ? C.em : C.emD; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.stroke();
+    if (full) { ctx.fillStyle = C.ink; ctx.font = '700 12px Figtree'; ctx.textAlign = 'center'; ctx.fillText(x.id, inf.pos[0] * s, inf.pos[1] * s - 15); }
+  });
+  ctx.beginPath(); ctx.arc(ME[0] * s, ME[1] * s, 8, 0, 7); ctx.fillStyle = C.aquaD; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.stroke(); ctx.fillStyle = C.ink; ctx.font = '700 12px Figtree'; ctx.textAlign = 'left'; ctx.fillText('You', ME[0] * s + 12, ME[1] * s + 4);
+}
+function updateLive() {
+  if (view === 'find') {
+    document.querySelectorAll('#slist .item').forEach(d => { const it = ITEMS.find(i => i.id === d.dataset.id), inf = itemInfo(it); d.querySelector('[data-sub]').textContent = inf.zone + ' · about ' + Math.round(rlen(route(inf.pos))) + ' m from you'; const p = d.querySelector('[data-conf]'); p.textContent = inf.conf + '% sure'; p.className = confCls(inf.conf); });
+    const c = document.querySelector('#slist canvas.mini'); if (c) drawMini(c, ITEMS.find(i => i.id === selId), false);
+  } else if (view === 'map') {
+    drawMini($('fmap'), null, true); const it = ITEMS.find(i => i.id === selId), inf = itemInfo(it);
+    $('msel').innerHTML = `<div class="row"><div><b>${it.name}</b><small>${inf.zone} · about ${Math.round(rlen(route(inf.pos)))} m from you</small></div><span class="${confCls(inf.conf)}">${inf.conf}% sure</span></div>`;
+  } else {
+    const o = frame.out, online = anchors.length - cfg.dead.size;
+    $('hsum').innerHTML = `<b>${online} of ${anchors.length} anchors online</b><small>${cfg.dead.size ? 'Accuracy reduced near offline anchors. Maintenance notified.' : 'All anchors healthy.'}</small>`;
+    $('hpill').className = 'pill ' + (cfg.dead.size ? (cfg.dead.size > 2 ? 'r' : 'a') : 'g'); $('hpill').textContent = cfg.dead.size ? 'Degraded' : 'Healthy';
+    anchors.forEach((a, i) => { const r = $('an-' + a.id); if (!r) return; const dead = cfg.dead.has(a.id), t = o ? o.trust[i] : 0.8; r.querySelector('.bar i').style.width = (dead ? 100 : Math.max(4, pct(t))) + '%'; r.querySelector('.bar i').style.background = dead ? C.coral : trustCol(t); const p = r.querySelector('.pill'); p.className = 'pill ' + (dead ? 'r' : t > 0.7 ? 'g' : 'a'); p.textContent = dead ? 'Offline' : t > 0.7 ? 'Strong' : 'Weak'; r.querySelector('button').textContent = dead ? 'Bring online' : 'Simulate failure'; r.classList.toggle('dead', dead); });
+  }
+}
+function buildHealth() {
+  $('hlist').innerHTML = anchors.map(a => `<div class="item" id="an-${a.id}" style="cursor:default"><div class="row"><div><b>Anchor ${a.id}</b><small>${roomName(roomAt(a.x, a.y))}</small></div><span class="pill g">Strong</span></div><div class="bar"><i></i></div><button class="go ghost">Simulate failure</button></div>`).join('');
+  anchors.forEach(a => $('an-' + a.id).querySelector('button').onclick = () => { cfg.dead.has(a.id) ? cfg.dead.delete(a.id) : cfg.dead.add(a.id); onDeadChange(); });
+}
+let toastT;
+function onDeadChange() {
+  const d = [...cfg.dead], t = $('toast');
+  if (d.length) { t.innerHTML = `<b>Anchor ${d.join(', ')} offline</b><br>Accuracy reduced nearby. Maintenance notified.`; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 5000); } else t.classList.remove('on');
+  if (view !== 'alerts' && d.length > deadSeen) { $('badge').hidden = false; $('badge').textContent = d.length - deadSeen; } updateLive();
+}
+function renderAll() { if (view === 'find') renderList(); else updateLive(); }
+function switchSite(id) {
+  setSite(id); const S = STAFF[id]; ITEMS = S.items; ME = S.me; selId = ITEMS[0].id; cat = 'All'; query = ''; $('q').value = ''; $('q').placeholder = S.ph; $('tagbtn').firstChild.textContent = S.tag + ' ';
+  $('tagbtn').dataset.site = id; cfg.dead.clear(); deadSeen = 0; $('badge').hidden = true; resetSim(); buildHealth(); renderChips(); setView(view); $('toast').classList.remove('on');
+}
+
+/* ---------- wiring ---------- */
+$('q').addEventListener('input', e => { query = e.target.value; renderList(); });
+document.querySelectorAll('.tabbar button').forEach(b => b.onclick = () => setView(b.dataset.v));
+$('tagbtn').onclick = () => switchSite(SITE_ID === 'hospital' ? 'warehouse' : 'hospital');
+$('fmap').addEventListener('click', e => { const r = $('fmap').getBoundingClientRect(), x = (e.clientX - r.left) / r.width * FLOOR.w, y = (e.clientY - r.top) / r.height * FLOOR.h; let best = null, bd = 2.5; filtered().forEach(it => { const p = itemInfo(it).pos, d = Math.hypot(p[0] - x, p[1] - y); if (d < bd) { bd = d; best = it; } }); if (best) { selId = best.id; updateLive(); } });
+
+resetSim(); buildHealth(); renderChips(); setView('find');
+function loop(now) {
+  if (!tPrev) tPrev = now; const d = Math.min(0.35, (now - tPrev) / 1000); tPrev = now; acc += d; let n = 0;
+  while (acc >= 0.1 && n < 3) { simStep(); acc -= 0.1; n++; } if (n === 3) acc = 0;
+  if (n) updateLive(); requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+if (location.hash === '#wh') switchSite('warehouse');
+if (['map', 'alerts'].includes(location.hash.slice(1))) setView(location.hash.slice(1));
+
+</script>
+</body>
+</html>

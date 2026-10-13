@@ -1,0 +1,791 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LOCUS · Indoor Positioning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --aqua:#22C3E6; --aqua-d:#0E9DBE; --aqua-l:#BFE9F3; --aqua-xl:#E6F8FC;
+  --em:#10B981; --em-d:#0B8A5E; --em-dd:#0A6B49; --em-l:#DDF6EA;
+  --ink:#0B3A4A; --ink2:#3F6572; --ink3:#7A9AA6; --bg:#F4FCFE; --card:#FFFFFF; --line:#CDEBF3;
+  --amber:#F5A524; --amber-l:#FFF1D6; --coral:#EF6A6A; --coral-l:#FFE3E3;
+  --grad:linear-gradient(135deg,#22C3E6 0%,#10B981 100%);
+  --shadow:0 10px 28px rgba(34,195,230,.13); --r:20px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Figtree',system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;
+  background-image:radial-gradient(900px 400px at 85% -100px,rgba(34,195,230,.18),transparent 70%),radial-gradient(700px 380px at 0% 0%,rgba(16,185,129,.12),transparent 70%);background-repeat:no-repeat}
+h1,h2,h3,.sora{font-family:'Sora',sans-serif}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--aqua);outline-offset:2px}
+.wrap{max-width:1440px;margin:0 auto;padding:0 24px}
+
+/* header */
+header{position:sticky;top:0;z-index:50;background:rgba(244,252,254,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.hrow{display:flex;align-items:center;gap:20px;height:68px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo b{font-family:'Sora';font-size:20px;letter-spacing:.14em;color:var(--ink)}
+.tag{font-size:13px;color:var(--ink2);display:none}
+@media(min-width:1180px){.tag{display:block}}
+.site{display:flex;gap:3px;background:var(--aqua-xl);padding:3px;border-radius:999px;margin-left:auto}
+.site button{height:32px;padding:0 14px;border-radius:999px;font-size:13px;font-weight:700;color:var(--ink2)}
+.site button[aria-pressed=true]{background:#fff;color:var(--em-dd);box-shadow:0 2px 8px rgba(11,58,74,.12)}
+nav{display:flex;gap:4px;background:#fff;border:1px solid var(--line);padding:4px;border-radius:999px;overflow-x:auto}
+nav button{height:38px;padding:0 16px;border-radius:999px;font-weight:600;font-size:14px;color:var(--ink2);white-space:nowrap;transition:.2s}
+nav button:hover{color:var(--ink)}
+nav button[aria-selected=true]{background:var(--grad);color:#fff;box-shadow:0 4px 12px rgba(16,185,129,.3)}
+.applink{height:38px;display:inline-flex;align-items:center;padding:0 16px;border-radius:999px;border:1.5px solid var(--aqua-l);background:#fff;font-weight:700;font-size:14px;color:var(--em-dd);text-decoration:none;white-space:nowrap}
+.applink:hover{border-color:var(--em)}
+.live{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--em-dd);background:var(--em-l);padding:7px 12px;border-radius:999px;white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--em);position:relative}
+.dot::after{content:'';position:absolute;inset:0;border-radius:50%;background:var(--em);animation:ping 2s ease-out infinite}
+@keyframes ping{0%{transform:scale(1);opacity:.6}100%{transform:scale(3);opacity:0}}
+@media(max-width:820px){.hrow{flex-wrap:wrap;height:auto;padding:10px 0}.live{display:none}nav{margin-left:0;width:100%}.site{margin-left:auto}}
+
+/* generic */
+main{padding:20px 0 40px}
+section.view{display:none}section.view.on{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:18px}
+.card h3{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.card h3 small{font-family:'Figtree';font-weight:500;color:var(--ink3);font-size:12px;margin-left:auto}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.pill.g{background:var(--em-l);color:var(--em-dd)}.pill.a{background:var(--amber-l);color:#8A5A00}.pill.r{background:var(--coral-l);color:#B03030}.pill.b{background:var(--aqua-xl);color:var(--aqua-d)}
+.hero{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;margin-bottom:18px}
+.hero h1{font-size:clamp(24px,3vw,34px);line-height:1.15;letter-spacing:-.01em}
+.hero h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--ink2);margin-top:6px;max-width:640px}
+.grid{display:grid;gap:18px}
+.dash{grid-template-columns:minmax(0,1fr) 380px}
+@media(max-width:1100px){.dash{grid-template-columns:1fr}}
+
+/* KPI row */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+@media(max-width:700px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 16px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--grad)}
+.kpi span{font-size:12px;color:var(--ink2);font-weight:600}
+.kpi b{display:block;font-family:'Sora';font-size:26px;margin-top:2px;font-variant-numeric:tabular-nums}
+.kpi b i{font-style:normal;font-size:13px;color:var(--ink3);font-family:'Figtree';font-weight:600;margin-left:4px}
+.kpi small{font-size:12px;color:var(--ink3)}
+
+/* map */
+.mapbox{position:relative;border-radius:16px;overflow:hidden;background:#fff;border:1px solid var(--line)}
+canvas{display:block;width:100%}
+#map{aspect-ratio:40/24;cursor:crosshair}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--ink2);margin-top:12px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.mapnote{position:absolute;left:12px;bottom:10px;background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-size:12.5px;max-width:70%}
+.mapnote b{color:var(--em-dd)}
+.mapctl{position:absolute;right:10px;top:10px;display:flex;gap:6px}
+.chip{height:32px;padding:0 12px;border-radius:999px;border:1.5px solid var(--aqua-l);background:#fff;font-size:12.5px;font-weight:600;color:var(--ink);transition:.15s}
+.chip:hover{border-color:var(--aqua)}
+.chip[aria-pressed=true]{background:var(--em-d);border-color:var(--em-d);color:#fff}
+
+/* trust list */
+.arow{padding:10px 0;border-bottom:1px dashed var(--line)}
+.arow:last-child{border:0}
+.arow .t{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px}
+.arow .t em{margin-left:auto;font-style:normal;font-variant-numeric:tabular-nums;font-size:13px}
+.bar{height:8px;border-radius:99px;background:#E7F5F9;overflow:hidden;margin:7px 0 5px}
+.bar>i{display:block;height:100%;border-radius:99px;transition:width .35s,background .35s}
+.arow .why{font-size:12.5px;color:var(--ink2);line-height:1.35;min-height:17px}
+.arow.dead{opacity:.6}
+.arow button.tog{margin-left:6px;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:99px;border:1.5px solid var(--aqua-l);color:var(--ink2)}
+.arow button.tog:hover{border-color:var(--coral);color:#B03030}
+.rooms .r{display:flex;align-items:center;gap:10px;font-size:13px;margin:7px 0}
+.rooms .r span:first-child{width:78px;font-weight:600}
+.rooms .r .bar{flex:1;margin:0}
+.rooms .r em{font-style:normal;width:40px;text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+.big-room{font-family:'Sora';font-size:20px;font-weight:700;line-height:1.2}
+.big-room small{display:block;font-family:'Figtree';font-size:12.5px;color:var(--ink2);font-weight:500;margin-top:2px}
+
+/* fault lab */
+.lab{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px 28px;align-items:start}
+.ctl label{display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:6px}
+.ctl label b{font-variant-numeric:tabular-nums;color:var(--em-d)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:8px;border-radius:99px;background:linear-gradient(90deg,var(--aqua-l),var(--em-l));outline-offset:6px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid var(--em);box-shadow:0 2px 8px rgba(16,185,129,.4);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--em);cursor:pointer}
+.scen{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.scen .chip{height:38px}
+
+/* charts */
+.chartwrap{position:relative}
+#errchart{height:180px}
+.cleg{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--ink2);margin-top:8px}
+.cleg i{display:inline-block;width:18px;height:4px;border-radius:2px;margin-right:6px;vertical-align:2px}
+
+/* tables */
+table{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:9px 10px;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{font-size:12px;color:var(--ink2);font-weight:700;background:var(--aqua-xl)}
+td.win{color:var(--em-dd);font-weight:800}
+.btn{height:46px;padding:0 22px;border-radius:14px;background:var(--grad);color:#fff;font-weight:700;font-size:15px;box-shadow:0 8px 20px rgba(16,185,129,.3);transition:.2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 12px 24px rgba(16,185,129,.35)}
+.btn:disabled{opacity:.6;transform:none;cursor:progress}
+.btn.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--aqua-l);box-shadow:none}
+.note{font-size:12.5px;color:var(--ink3);line-height:1.5}
+.split{display:grid;gap:18px;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}
+@media(max-width:1000px){.split{grid-template-columns:1fr}}
+.stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.stat3 div{background:var(--aqua-xl);border-radius:14px;padding:12px}
+.stat3 span{font-size:12px;color:var(--ink2);font-weight:600}.stat3 b{display:block;font-family:'Sora';font-size:22px;margin-top:2px}
+
+/* staff app */
+.phones{display:grid;grid-template-columns:minmax(0,430px) minmax(0,1fr);gap:28px;align-items:start}
+@media(max-width:900px){.phones{grid-template-columns:1fr}}
+.phone{width:100%;max-width:400px;margin:0 auto;border-radius:44px;background:#0B3A4A;padding:10px;box-shadow:0 30px 60px rgba(11,58,74,.25)}
+.screen{border-radius:36px;overflow:hidden;background:var(--bg);height:800px;display:flex;flex-direction:column;position:relative}
+.sbar{display:flex;justify-content:space-between;padding:10px 24px 0;font-size:12px;font-weight:700;color:#06303D;background:linear-gradient(135deg,#22C3E6,#10B981)}
+.shead{padding:14px 20px 22px;background:var(--grad);border-radius:0 0 28px 28px;display:flex;flex-direction:column;gap:14px}
+.shead h2{font-size:25px;color:#06303D;line-height:1.2}
+.sq{position:relative}
+.sq input{width:100%;height:52px;border:0;border-radius:16px;background:#fff;padding:0 16px 0 46px;font:500 16px 'Figtree';color:var(--ink)}
+.sq svg{position:absolute;left:16px;top:16px}
+.schips{display:flex;gap:8px;padding:16px 20px 0;overflow-x:auto}
+.schips .chip{height:44px;padding:0 16px;font-size:14px;flex:none}
+.slist{flex:1;overflow-y:auto;padding:14px 20px 90px;display:flex;flex-direction:column;gap:12px}
+.item{background:#fff;border:1px solid var(--line);border-radius:20px;padding:14px;text-align:left;width:100%;transition:.2s;box-shadow:0 6px 16px rgba(34,195,230,.08)}
+.item.sel{border-color:var(--em);box-shadow:0 10px 24px rgba(16,185,129,.2)}
+.item .row{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.item b{font-family:'Sora';font-size:16px;font-weight:600}
+.item small{display:block;color:var(--ink2);font-size:13.5px;margin-top:2px}
+#smap{margin-top:12px;border-radius:14px;border:1px solid var(--line);aspect-ratio:40/24;background:#fff}
+.go{margin-top:12px;width:100%;height:50px;border-radius:14px;background:var(--grad);color:#fff;font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px}
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:72px;background:rgba(255,255,255,.95);border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:center;font-size:11.5px;font-weight:700;color:var(--ink3)}
+.tabbar div{display:flex;flex-direction:column;align-items:center;gap:3px}.tabbar .on{color:var(--em-d)}
+.toast{position:absolute;left:16px;right:16px;top:118px;background:#fff;border:1px solid var(--amber);border-left:5px solid var(--amber);border-radius:14px;padding:10px 12px;font-size:13px;box-shadow:0 10px 24px rgba(0,0,0,.12);transform:translateY(-30px);opacity:0;pointer-events:none;transition:.4s;z-index:5}
+.toast.on{transform:none;opacity:1}
+.feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.feat .f{padding:16px;border-radius:18px;background:#fff;border:1px solid var(--line)}
+.feat .f i{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:var(--grad);color:#fff;font-style:normal;font-weight:800;margin-bottom:10px}
+.feat .f b{font-family:'Sora';font-size:15px}.feat .f p{font-size:13px;color:var(--ink2);margin-top:4px;line-height:1.45}
+footer{text-align:center;color:var(--ink3);font-size:12.5px;padding:10px 0 40px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<header><div class="wrap hrow">
+  <div class="logo">
+    <svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22C3E6"/><stop offset="1" stop-color="#10B981"/></linearGradient></defs><rect width="40" height="40" rx="12" fill="url(#lg)"/><circle cx="20" cy="20" r="9" fill="none" stroke="#fff" stroke-width="2.6"/><path d="M20 6v7M20 27v7M6 20h7M27 20h7" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><circle cx="20" cy="20" r="3" fill="#fff"/></svg>
+    <div><b>LOCUS</b><div class="tag">Half the beacons. Every estimate explained.</div></div>
+  </div>
+  <div class="site" role="group" aria-label="Site"><button aria-pressed="true" data-site="hospital">Hospital</button><button aria-pressed="false" data-site="warehouse">Warehouse</button></div>
+  <nav role="tablist" aria-label="Views">
+    <button role="tab" aria-selected="true" data-v="dash">Live dashboard</button>
+    <button role="tab" aria-selected="false" data-v="plan">Placement planner</button>
+    <button role="tab" aria-selected="false" data-v="bench">Benchmark</button>
+  </nav>
+  <a class="applink" href="LOCUS-Staff-App.html">Staff app ↗</a>
+  <div class="live"><span class="dot"></span><span id="hl">Simulated feed · 10 Hz</span></div>
+</div></header>
+
+<main class="wrap">
+
+<!-- ================= DASHBOARD ================= -->
+<section class="view on" id="v-dash">
+  
+  <div class="kpis">
+    <div class="kpi"><span>LOCUS error now</span><b id="k-err">–<i>m</i></b><small id="k-err2">vs trilateration –</small></div>
+    <div class="kpi"><span>90% confidence ellipse</span><b id="k-ell">–<i>m</i></b><small>half-length of major axis</small></div>
+    <div class="kpi"><span>Anchors usable</span><b id="k-anc">–<i>/ 6</i></b><small id="k-anc2">–</small></div>
+    <div class="kpi"><span>Wall bias learned</span><b id="k-wall">–<i>m / wall</i></b><small>self-calibrated from trusted links</small></div>
+  </div>
+
+  <div class="grid dash">
+    <div class="grid" style="align-content:start">
+      <div class="card">
+        <h3><span id="d-floor">Floor map · Level 2</span> <small>click an anchor to kill it</small></h3>
+        <div class="mapbox">
+          <canvas id="map" width="1200" height="720" aria-label="Live floor map with tracked asset, anchors and confidence ellipse"></canvas>
+          <div class="mapctl"><button class="chip" id="c-cloud" aria-pressed="true">Particles</button><button class="chip" id="c-base" aria-pressed="true">Baseline fix</button><button class="chip" id="c-links" aria-pressed="true">Links</button></div>
+          <div class="mapnote" id="mapnote">Starting…</div>
+        </div>
+        <div class="legend">
+          <span><i style="background:#10B981"></i>LOCUS estimate</span><span><i style="background:#0B3A4A"></i>Ground truth</span><span><i style="background:#F5A524"></i>Plain trilateration</span><span><i style="background:#22C3E6"></i>Anchor (ring = trust)</span><span><i style="background:#EF6A6A"></i>Dead / distrusted</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Fault Lab <small>inject real-world problems</small></h3>
+        <div class="lab">
+          <div class="ctl"><label for="s-sigma">Signal noise σ <b id="o-sigma">0.6 m</b></label><input type="range" id="s-sigma" min="0.2" max="2" step="0.1" value="0.6"></div>
+          <div class="ctl"><label for="s-loss">Packet loss <b id="o-loss">10%</b></label><input type="range" id="s-loss" min="0" max="70" step="5" value="10"></div>
+          <div class="ctl"><label for="s-wall">Wall attenuation <b id="o-wall">1.8 m/wall</b></label><input type="range" id="s-wall" min="0.5" max="3.5" step="0.1" value="1.8"></div>
+          <div class="ctl"><label for="s-n">Anchors installed <b id="o-n">6</b></label><input type="range" id="s-n" min="2" max="6" step="1" value="6"></div>
+        </div>
+        <div class="scen" style="margin-top:16px" role="group" aria-label="Scenarios">
+          <button class="chip" id="sc-body">Body-block A3</button>
+          <button class="chip" id="sc-drift">Drift A2 (+2.5 m)</button>
+          <button class="chip" id="sc-kill">Kill A3</button>
+          <button class="chip" id="sc-storm">Perfect storm</button>
+          <button class="chip" id="sc-reset" style="margin-left:auto;border-color:var(--em);color:var(--em-dd)">Reset</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Error over time <small>last 30 s · lower is better</small></h3>
+        <div class="chartwrap"><canvas id="errchart" width="1200" height="360" aria-label="Positioning error over time for three methods"></canvas></div>
+        <div class="cleg"><span><i style="background:#10B981"></i>LOCUS</span><span><i style="background:#7C93C3"></i>Trilateration + Kalman</span><span><i style="background:#F5A524"></i>Plain trilateration</span></div>
+      </div>
+    </div>
+
+    <aside class="grid" style="align-content:start">
+      <div class="card">
+        <h3>Where is it? <small>room probability</small></h3>
+        <div class="big-room" id="b-room">–<small id="b-room2">–</small></div>
+        <div class="rooms" id="rooms" style="margin-top:12px"></div>
+      </div>
+      <div class="card">
+        <h3>Anchor trust · explainable <small>0 – 1</small></h3>
+        <div id="anchors"></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ================= PLANNER ================= -->
+<section class="view" id="v-plan">
+    <div class="split">
+    <div class="card">
+      <h3>Expected error heatmap <small id="p-sub">–</small></h3>
+      <div class="mapbox"><canvas id="pmap" width="1200" height="720" aria-label="Heatmap of expected positioning error with recommended anchor positions"></canvas></div>
+      <div class="legend"><span><i style="background:#10B981"></i>Room-level or better</span><span><i style="background:#22C3E6"></i>≈ 2 m</span><span><i style="background:#F5A524"></i>Weak coverage</span><span><i style="background:#0B3A4A"></i>Planned anchor</span></div>
+    </div>
+    <div class="grid" style="align-content:start">
+      <div class="card">
+        <h3>Your budget</h3>
+        <div class="ctl"><label for="p-n">Anchors to install <b id="p-nv">4</b></label><input type="range" id="p-n" min="2" max="10" step="1" value="4"></div>
+        <div class="stat3">
+          <div><span>Mean expected error</span><b id="p-err">–</b></div>
+          <div><span>Floor within 2 m</span><b id="p-cov">–</b></div>
+          <div><span>Hardware cost</span><b id="p-cost">–</b></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>vs. a dense BLE grid</h3>
+        <table><thead><tr><th></th><th>Anchors</th><th>Cost</th><th>Error</th></tr></thead><tbody id="p-tab"></tbody></table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BENCHMARK ================= -->
+<section class="view" id="v-bench">
+    <div class="split">
+    <div class="card">
+      <h3>Median error vs anchors <small>lower is better</small></h3>
+      <canvas id="bchart" width="1200" height="600" aria-label="Median error against number of anchors for three methods"></canvas>
+      <div class="cleg"><span><i style="background:#10B981"></i>LOCUS</span><span><i style="background:#7C93C3"></i>Trilateration + Kalman</span><span><i style="background:#F5A524"></i>Plain trilateration</span></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px"><button class="btn" id="b-run">Run benchmark</button><small id="b-meta" style="color:var(--ink3);font-size:12.5px"></small></div>
+      <div style="overflow-x:auto"><table><thead><tr><th>Anchors</th><th>Tri. med</th><th>KF med</th><th>LOCUS med</th><th>LOCUS p90</th><th>&lt; 2 m</th><th>90% ellipse hit</th></tr></thead><tbody id="b-tab"><tr><td colspan="7" style="text-align:center;color:var(--ink3);padding:30px">Press “Run benchmark”</td></tr></tbody></table></div>
+    </div>
+  </div>
+</section>
+
+
+</main>
+<script>
+/* ===== LOCUS engine: simulator, baselines, trust scorer, map-aware particle filter ===== */
+const FLOOR = { w: 40, h: 24 };
+const TOP_DOORS = [5, 15, 25, 35], BOT_DOORS = [6, 17, 27, 36], DOOR_HALF = 1.2;
+/* ---- sites: hospital floor and warehouse (same 40 x 24 m footprint) ---- */
+let SITE_ID = 'hospital', ROOMS, WALLS, ANCHORS, DROP_ORDER, WAYPOINTS, FALLBACK = 'corr';
+function hospitalSite() {
+  const rooms = [
+    { id: 'wardA', name: 'Ward A', r: [0, 0, 10, 9] }, { id: 'wardB', name: 'Ward B', r: [10, 0, 20, 9] },
+    { id: 'icu', name: 'ICU', r: [20, 0, 30, 9] }, { id: 'pharm', name: 'Pharmacy', r: [30, 0, 40, 9] },
+    { id: 'corr', name: 'Corridor', r: [0, 9, 40, 15] },
+    { id: 'recep', name: 'Reception', r: [0, 15, 12, 24] }, { id: 'store', name: 'Store', r: [12, 15, 22, 24] },
+    { id: 'radio', name: 'Radiology', r: [22, 15, 32, 24] }, { id: 'ot', name: 'OT', r: [32, 15, 40, 24] },
+  ];
+  const W = [], hseg = (y, doors) => { let c = 0; doors.forEach(d => { W.push([c, y, d - DOOR_HALF, y]); c = d + DOOR_HALF; }); W.push([c, y, FLOOR.w, y]); };
+  hseg(9, TOP_DOORS); hseg(15, BOT_DOORS);
+  [10, 20, 30].forEach(x => W.push([x, 0, x, 9])); [12, 22, 32].forEach(x => W.push([x, 15, x, 24]));
+  W.push([0, 0, FLOOR.w, 0], [0, FLOOR.h, FLOOR.w, FLOOR.h], [0, 0, 0, FLOOR.h], [FLOOR.w, 0, FLOOR.w, FLOOR.h]);
+  return { rooms, walls: W, fallback: 'corr',
+    anchors: [{ id: 'A1', x: 1.5, y: 13.5 }, { id: 'A2', x: 15, y: 1.5 }, { id: 'A3', x: 25, y: 10.5 }, { id: 'A4', x: 38.5, y: 13.5 }, { id: 'A5', x: 28, y: 22.5 }, { id: 'A6', x: 7, y: 22.5 }],
+    drop: [2, 5, 1, 3, 0, 4],
+    way: [[3, 12], [15, 12], [15, 4], [15, 12], [25, 12], [25, 4], [25, 12], [36, 12], [36, 19.5], [36, 12], [27, 12], [27, 19.5], [27, 12], [6, 12], [6, 19.5], [6, 12]] };
+}
+function warehouseSite() {
+  const rooms = [{ id: 'recv', name: 'Receiving', r: [0, 0, 8, 24] }, { id: 'aisA', name: 'Aisle A', r: [8, 0, 16, 24] }, { id: 'aisB', name: 'Aisle B', r: [16, 0, 24, 24] }, { id: 'aisC', name: 'Aisle C', r: [24, 0, 32, 24] }, { id: 'disp', name: 'Dispatch', r: [32, 0, 40, 24] }];
+  const W = []; [8, 16, 24, 32].forEach(x => { W.push([x, 0, x, 10.5], [x, 13.5, x, 24]); });
+  [12, 20, 28].forEach(x => { W.push([x - 1.8, 4, x + 1.8, 4], [x - 1.8, 20, x + 1.8, 20]); }); // end-cap shelves
+  W.push([0, 0, FLOOR.w, 0], [0, FLOOR.h, FLOOR.w, FLOOR.h], [0, 0, 0, FLOOR.h], [FLOOR.w, 0, FLOOR.w, FLOOR.h]);
+  return { rooms, walls: W, fallback: 'recv',
+    anchors: [{ id: 'A1', x: 1.5, y: 21 }, { id: 'A2', x: 12, y: 1.5 }, { id: 'A3', x: 20, y: 12 }, { id: 'A4', x: 28, y: 22.5 }, { id: 'A5', x: 38.5, y: 3 }, { id: 'A6', x: 38.5, y: 21 }],
+    drop: [2, 5, 1, 3, 0, 4],
+    way: [[3, 12], [12, 12], [12, 7], [12, 17], [12, 12], [20, 12], [20, 7], [20, 17], [20, 12], [28, 12], [28, 7], [28, 17], [28, 12], [36, 12], [36, 5], [36, 19], [36, 12]] };
+}
+function setSite(id) { const S = id === 'warehouse' ? warehouseSite() : hospitalSite(); SITE_ID = id; ROOMS = S.rooms; WALLS = S.walls; ANCHORS = S.anchors; DROP_ORDER = S.drop; WAYPOINTS = S.way; FALLBACK = S.fallback; }
+setSite('hospital');
+
+function roomAt(x, y) { for (const r of ROOMS) { const [a, b, c, d] = r.r; if (x >= a && x < c && y >= b && y < d) return r.id; } return FALLBACK; }
+function roomName(id) { return ROOMS.find(r => r.id === id).name; }
+function segInt(ax, ay, bx, by, cx, cy, dx, dy) {
+  const d1x = bx - ax, d1y = by - ay, d2x = dx - cx, d2y = dy - cy;
+  const den = d1x * d2y - d1y * d2x; if (Math.abs(den) < 1e-12) return false;
+  const t = ((cx - ax) * d2y - (cy - ay) * d2x) / den, u = ((cx - ax) * d1y - (cy - ay) * d1x) / den;
+  return t > 1e-6 && t < 1 - 1e-6 && u >= 0 && u <= 1;
+}
+function wallsBetween(ax, ay, bx, by) { let k = 0; for (const w of WALLS) if (segInt(ax, ay, bx, by, w[0], w[1], w[2], w[3])) k++; return k; }
+function crossesWall(ax, ay, bx, by) { for (const w of WALLS) if (segInt(ax, ay, bx, by, w[0], w[1], w[2], w[3])) return true; return false; }
+
+function rngMake(seed) { let a = seed >>> 0; const f = () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; f.g = () => { let u = 0, v = 0; while (!u) u = f(); v = f(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }; return f; }
+
+/* Walker along waypoint loop */
+class Walker {
+  constructor(speed = 1.2, offset = 0) { this.i = 0; this.pos = WAYPOINTS[0].slice(); this.speed = speed; this.vel = [0, 0]; if (offset) this.advance(offset); }
+  advance(dist) { while (dist > 0) { const t = WAYPOINTS[(this.i + 1) % WAYPOINTS.length], dx = t[0] - this.pos[0], dy = t[1] - this.pos[1], d = Math.hypot(dx, dy); if (d <= dist) { this.pos = t.slice(); this.i = (this.i + 1) % WAYPOINTS.length; dist -= d; } else { this.pos[0] += dx / d * dist; this.pos[1] += dy / d * dist; dist = 0; } } }
+  step(dt) { const o = this.pos.slice(); this.advance(this.speed * dt); this.vel = [(this.pos[0] - o[0]) / dt, (this.pos[1] - o[1]) / dt]; return this.pos; }
+}
+
+/* Radio simulator: noise, packet loss, wall (NLOS) bias, dead anchors, drift, forced obstruction */
+function measure(pos, anchors, cfg, rng) {
+  return anchors.map((a, i) => {
+    if (cfg.dead && cfg.dead.has(a.id)) return null;
+    if (rng() < cfg.loss) return null;
+    const d = Math.hypot(pos[0] - a.x, pos[1] - a.y), k = wallsBetween(a.x, a.y, pos[0], pos[1]);
+    let bias = k * cfg.wallBias * (0.5 + rng()), nlos = k > 0;
+    if (cfg.obstruct && cfg.obstruct.has(a.id)) { bias += cfg.obstructBias * (0.6 + 0.8 * rng()); nlos = true; }
+    if (cfg.burst) { const st = rng._b || (rng._b = {}); if (!st[a.id] && rng() < cfg.burst) st[a.id] = 20 + (rng() * 30 | 0); if (st[a.id] > 0) { st[a.id]--; bias += 3.2; nlos = true; } }
+    if (cfg.drift && cfg.drift.has(a.id)) { bias += cfg.driftBias; nlos = true; }
+    const sigma = cfg.sigma * (nlos ? 1.8 : 1);
+    return { r: Math.max(0.3, d + bias + sigma * rng.g()), nlos, bias };
+  });
+}
+
+/* Plain trilateration: Gauss-Newton least squares (optionally weighted) */
+function lsFix(anchors, meas, init, w) {
+  let x = init[0], y = init[1], n = 0;
+  for (let it = 0; it < 12; it++) {
+    let a11 = 1e-3, a12 = 0, a22 = 1e-3, b1 = 0, b2 = 0; n = 0;
+    for (let i = 0; i < anchors.length; i++) {
+      const m = meas[i]; if (!m) continue; n++;
+      const dx = x - anchors[i].x, dy = y - anchors[i].y, d = Math.max(0.2, Math.hypot(dx, dy)), ux = dx / d, uy = dy / d, res = m.r - d, wt = w ? w[i] : 1;
+      a11 += wt * ux * ux; a12 += wt * ux * uy; a22 += wt * uy * uy; b1 += wt * ux * res; b2 += wt * uy * res;
+    }
+    if (!n) return null;
+    const lam = n < 3 ? 0.6 : 0.05, det = (a11 + lam) * (a22 + lam) - a12 * a12;
+    x += ((a22 + lam) * b1 - a12 * b2) / det; y += ((a11 + lam) * b2 - a12 * b1) / det;
+  }
+  return [Math.min(FLOOR.w, Math.max(0, x)), Math.min(FLOOR.h, Math.max(0, y))];
+}
+/* Baseline B: trilateration + constant-velocity Kalman filter (what most teams build) */
+class KalmanCV {
+  constructor() { this.x = null; }
+  update(z, dt) {
+    if (!z) { if (this.x) { this.x[0] += this.x[2] * dt; this.x[1] += this.x[3] * dt; } return this.x ? [this.x[0], this.x[1]] : null; }
+    if (!this.x) { this.x = [z[0], z[1], 0, 0]; this.P = [10, 10, 4, 4]; return z.slice(); }
+    const q = 0.4 * dt, R = 2.0;
+    for (let k = 0; k < 2; k++) {
+      let p = this.x[k], v = this.x[k + 2], P = this.P[k], Pv = this.P[k + 2];
+      p += v * dt; P += dt * dt * Pv + q; Pv += q;
+      const K = P / (P + R), K2 = (Pv * 0.2) / (P + R); const inn = z[k] - p;
+      p += K * inn; v += K2 / Math.max(dt, 1e-3) * inn * 0.5; P *= (1 - K);
+      this.x[k] = p; this.x[k + 2] = v; this.P[k] = P; this.P[k + 2] = Pv;
+    }
+    return [this.x[0], this.x[1]];
+  }
+}
+
+/* wall-count lookup per anchor (0.5 m grid) so the filter can predict wall bias for any particle */
+const KCACHE = {};
+function kGrid(a) {
+  const key = SITE_ID + a.id + ':' + a.x + ',' + a.y; if (KCACHE[key]) return KCACHE[key];
+  const W = FLOOR.w * 2, H = FLOOR.h * 2, g = new Uint8Array(W * H);
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) g[j * W + i] = wallsBetween(a.x, a.y, (i + 0.5) / 2, (j + 0.5) / 2);
+  return KCACHE[key] = g;
+}
+function kAt(g, x, y) { const i = Math.min(FLOOR.w * 2 - 1, Math.max(0, x * 2 | 0)), j = Math.min(FLOOR.h * 2 - 1, Math.max(0, y * 2 | 0)); return g[j * FLOOR.w * 2 + i]; }
+
+/* LOCUS: trust scorer + weighted robust fix + map-aware particle filter */
+class Locus {
+  constructor(anchors, opts = {}) {
+    this.anchors = anchors; this.N = opts.N || 600; this.sigma = opts.sigma || 0.6; this.rng = opts.rng || rngMake(7);
+    this.inflate = opts.inflate || 1.0; this.wallMu = opts.wallMu || 1.4; this.kg = anchors.map(kGrid);
+    this.px = new Float64Array(this.N); this.py = new Float64Array(this.N); this.vx = new Float64Array(this.N); this.vy = new Float64Array(this.N); this.w = new Float64Array(this.N).fill(1 / this.N);
+    this.inited = false; this.trust = anchors.map(() => 0.8); this.last = anchors.map(() => null); this.silent = anchors.map(() => 0); this.hist = anchors.map(() => []);
+    this.est = null; this.fix = null;
+  }
+  _init(meas) {
+    const c = [FLOOR.w / 2, FLOOR.h / 2], f = lsFix(this.anchors, meas, c) || c, r = this.rng;
+    for (let i = 0; i < this.N; i++) { this.px[i] = Math.min(FLOOR.w - .1, Math.max(.1, f[0] + r.g() * 3.5)); this.py[i] = Math.min(FLOOR.h - .1, Math.max(.1, f[1] + r.g() * 3.5)); this.vx[i] = r.g() * .5; this.vy[i] = r.g() * .5; }
+    this.inited = true; this.est = f.slice();
+  }
+  _moments() {
+    let mx = 0, my = 0, sw = 0; for (let i = 0; i < this.N; i++) { const q = this.w[i]; mx += q * this.px[i]; my += q * this.py[i]; sw += q; }
+    mx /= sw; my /= sw; let sxx = 0, sxy = 0, syy = 0;
+    for (let i = 0; i < this.N; i++) { const q = this.w[i], dx = this.px[i] - mx, dy = this.py[i] - my; sxx += q * dx * dx; sxy += q * dx * dy; syy += q * dy * dy; }
+    return { mx, my, sxx: sxx / sw, sxy: sxy / sw, syy: syy / sw };
+  }
+  step(meas, dt) {
+    const A = this.anchors, r = this.rng, N = this.N, sg = this.sigma;
+    if (!this.inited) { if (!meas.some(Boolean)) return null; this._init(meas); }
+    /* 1. predict (motion history) */
+    for (let i = 0; i < N; i++) {
+      const ox = this.px[i], oy = this.py[i];
+      this.vx[i] = this.vx[i] * 0.96 + r.g() * 0.28; this.vy[i] = this.vy[i] * 0.96 + r.g() * 0.28;
+      const sp = Math.hypot(this.vx[i], this.vy[i]); if (sp > 2.2) { this.vx[i] *= 2.2 / sp; this.vy[i] *= 2.2 / sp; }
+      let nx = ox + this.vx[i] * dt + r.g() * 0.05, ny = oy + this.vy[i] * dt + r.g() * 0.05;
+      if (nx < 0 || ny < 0 || nx > FLOOR.w || ny > FLOOR.h || crossesWall(ox, oy, nx, ny)) { nx = ox; ny = oy; this.vx[i] *= -0.2; this.vy[i] *= -0.2; this.w[i] *= 0.2; }
+      this.px[i] = nx; this.py[i] = ny;
+    }
+    const pm = this._moments(), prior = [pm.mx, pm.my], priorStd = Math.sqrt(Math.max(0.04, (pm.sxx + pm.syy) / 2));
+    /* 2. trust scorer: residual vs motion prior, jump, variance -> 0..1 + reason */
+    const reasons = [], usable = [], tRs = [];
+    A.forEach((a, i) => {
+      const m = meas[i];
+      if (!m) { this.silent[i] += dt; this.trust[i] = Math.max(0, this.trust[i] - dt * 0.8); reasons[i] = this.silent[i] > 1 ? 'No packets for ' + this.silent[i].toFixed(0) + ' s' : 'Packet lost'; usable[i] = false; return; }
+      this.silent[i] = 0;
+      const kp = kAt(this.kg[i], prior[0], prior[1]), pred = Math.hypot(prior[0] - a.x, prior[1] - a.y) + kp * this.wallMu, res = m.r - pred, s = Math.sqrt(sg * sg + priorStd * priorStd + Math.pow(kp * 0.8, 2));
+      const tol = res > 0 ? 2.0 * s : 3.2 * s, zr = Math.abs(res) / tol, tR = 1 / (1 + Math.pow(zr, 3));
+      const h = this.hist[i]; h.push(m.r); if (h.length > 8) h.shift();
+      const jump = this.last[i] == null ? 0 : Math.abs(m.r - this.last[i]), jx = Math.max(0, jump - 0.25 - 3 * sg), tJ = 1 / (1 + Math.pow(jx / (3 * sg), 2));
+      let vr = 0; if (h.length > 3) { const mu = h.reduce((p, c) => p + c, 0) / h.length; vr = Math.sqrt(h.reduce((p, c) => p + (c - mu) * (c - mu), 0) / h.length); }
+      const tV = 1 / (1 + Math.pow(Math.max(0, vr - 1.6 * sg) / (1.5 * sg), 2));
+      tRs.push(tR); const raw = Math.max(0.02, tR * tJ * Math.sqrt(tV)); this.trust[i] = this.trust[i] * 0.55 + raw * 0.45; this.last[i] = m.r;
+      let why = 'Consistent with motion model';
+      if (this.trust[i] < 0.7) { if (tR <= tJ && tR <= tV) why = res > 0 ? 'Reads +' + res.toFixed(1) + ' m beyond what the walls explain (obstruction)' : 'Reads ' + (-res).toFixed(1) + ' m shorter than predicted'; else if (tJ <= tV) why = 'Sudden ' + jump.toFixed(1) + ' m jump between readings'; else why = 'Variance spike (σ ' + vr.toFixed(1) + ' m)'; }
+      reasons[i] = why; usable[i] = true;
+    });
+    /* collective disagreement => our prior is probably wrong, not the anchors: relocalise */
+    const lost = tRs.length >= 2 && tRs.filter(t => t < 0.3).length >= Math.ceil(tRs.length * 0.6);
+    this.lostN = lost ? (this.lostN || 0) + 1 : 0; const relocal = this.lostN >= 3;
+    /* 3. trust-weighted robust fix from the motion prior */
+    const wTrust = this.trust.map((t, i) => usable[i] ? t : 0);
+    this.fix = wTrust.some(t => t > 0.05) ? lsFix(A, meas, prior, wTrust.map(t => t * t)) : null;
+    /* 4. particle weight update with trust-inflated sigma + heavy-tail mix */
+    if (relocal) { const f = lsFix(A, meas, prior); if (f) for (let p = 0; p < N * 0.15; p++) { const j = (r() * N) | 0; this.px[j] = Math.min(FLOOR.w - .1, Math.max(.1, f[0] + r.g() * 3)); this.py[j] = Math.min(FLOOR.h - .1, Math.max(.1, f[1] + r.g() * 3)); this.w[j] = 1 / N; } }
+    let sw = 0; const eps = 0.04;
+    for (let p = 0; p < N; p++) {
+      let lw = Math.log(this.w[p] + 1e-300);
+      for (let i = 0; i < A.length; i++) { const m = meas[i]; if (!m || !usable[i]) continue; const t = relocal ? Math.max(this.trust[i], 0.45) : this.trust[i]; if (t < 0.08) continue; const kk = kAt(this.kg[i], this.px[p], this.py[p]), si = Math.sqrt(sg * sg / t + Math.pow(kk * 0.8, 2)) + 0.15, d = Math.hypot(this.px[p] - A[i].x, this.py[p] - A[i].y) + kk * this.wallMu, z = (m.r - d) / si; lw += Math.log((1 - eps) * Math.exp(-0.5 * z * z) / si + eps / 25); }
+      this.w[p] = Math.exp(lw); sw += this.w[p];
+    }
+    if (!(sw > 0)) { this.w.fill(1 / N); sw = 1; }
+    let ess = 0; for (let p = 0; p < N; p++) { this.w[p] /= sw; ess += this.w[p] * this.w[p]; } ess = 1 / ess;
+    /* 5. estimate + 90% ellipse + room probabilities */
+    const mo = this._moments(), cxx = mo.sxx, cyy = mo.syy, cxy = mo.sxy;
+    const tr = cxx + cyy, det = cxx * cyy - cxy * cxy, disc = Math.sqrt(Math.max(0, tr * tr / 4 - det)), l1 = tr / 2 + disc, l2 = Math.max(1e-4, tr / 2 - disc);
+    const k = 4.605 * this.inflate * this.inflate, ell = { a: Math.max(0.35, Math.sqrt(k * l1)), b: Math.max(0.3, Math.sqrt(k * l2)), th: 0.5 * Math.atan2(2 * cxy, cxx - cyy) };
+    const rp = {}; for (let p = 0; p < N; p++) { const id = roomAt(this.px[p], this.py[p]); rp[id] = (rp[id] || 0) + this.w[p]; }
+    this.est = [mo.mx, mo.my];
+    /* self-calibration: re-fit wall bias (m per wall) from readings we trust */
+    A.forEach((a, i) => { const m = meas[i]; if (!m || !usable[i] || this.trust[i] < 0.5) return; const ke = kAt(this.kg[i], mo.mx, mo.my); if (ke < 1) return; const mu = (m.r - Math.hypot(mo.mx - a.x, mo.my - a.y)) / ke; this.wallMu = Math.min(3.5, Math.max(0.8, this.wallMu + 0.02 * (mu - this.wallMu))); });
+    const out = { wallMu: this.wallMu, pos: this.est.slice(), ell, rooms: rp, trust: this.trust.slice(), reasons, usable, fix: this.fix, ess: ess / N, relocal };
+    /* 6. resample + roughen */
+    if (ess < N * 0.6) {
+      const nx = new Float64Array(N), ny = new Float64Array(N), nvx = new Float64Array(N), nvy = new Float64Array(N); let c = this.w[0], idx = 0; const u0 = r() / N;
+      for (let j = 0; j < N; j++) { const u = u0 + j / N; while (u > c && idx < N - 1) { idx++; c += this.w[idx]; } nx[j] = this.px[idx] + r.g() * 0.07; ny[j] = this.py[idx] + r.g() * 0.07; nvx[j] = this.vx[idx]; nvy[j] = this.vy[idx]; }
+      this.px = nx; this.py = ny; this.vx = nvx; this.vy = nvy; this.w.fill(1 / N);
+    }
+    return out;
+  }
+}
+if (typeof module !== 'undefined') module.exports = { get ROOMS() { return ROOMS; }, get WALLS() { return WALLS; }, get ANCHORS() { return ANCHORS; }, get DROP_ORDER() { return DROP_ORDER; }, get WAYPOINTS() { return WAYPOINTS; }, FLOOR, setSite, roomAt, roomName, wallsBetween, crossesWall, rngMake, Walker, measure, lsFix, KalmanCV, Locus };
+
+function ptile(a, p) { const s = a.slice().sort((x, y) => x - y); return s[Math.min(s.length - 1, Math.floor(p * s.length))]; }
+/* One trial: identical radio data is fed to all three estimators */
+function runTrial(nAnch, cfg, steps, seed, E) {
+  E = E || module.exports.E;
+  const anchors = E.DROP_ORDER.slice(0, nAnch).map(i => E.ANCHORS[i]);
+  const rng = E.rngMake(seed), wk = new E.Walker(1.2, (seed % 7) * 6), kf = new E.KalmanCV(), loc = new E.Locus(anchors, { N: 400, sigma: cfg.sigma, rng: E.rngMake(seed + 99), inflate: cfg.inflate });
+  const dt = 0.1, res = { ls: [], kf: [], lo: [], inside: 0, n: 0 }; let lastLs = [20, 12];
+  for (let s = 0; s < steps; s++) {
+    const t = wk.step(dt), m = E.measure(t, anchors, cfg, rng);
+    const ls = E.lsFix(anchors, m, lastLs); if (ls) lastLs = ls; const k = kf.update(ls, dt), o = loc.step(m, dt);
+    if (s < 15) continue;
+    if (ls) res.ls.push(Math.hypot(ls[0] - t[0], ls[1] - t[1]));
+    if (k) res.kf.push(Math.hypot(k[0] - t[0], k[1] - t[1]));
+    if (o) { res.lo.push(Math.hypot(o.pos[0] - t[0], o.pos[1] - t[1])); const dx = t[0] - o.pos[0], dy = t[1] - o.pos[1], c = Math.cos(-o.ell.th), sn = Math.sin(-o.ell.th), u = dx * c - dy * sn, v = dx * sn + dy * c; res.n++; if ((u / o.ell.a) ** 2 + (v / o.ell.b) ** 2 <= 1) res.inside++; }
+  }
+  return res;
+}
+function benchmark(cfg, steps, seeds, E) {
+  const out = [];
+  for (let n = 6; n >= 2; n--) {
+    const agg = { ls: [], kf: [], lo: [], inside: 0, n: 0 };
+    seeds.forEach(sd => { const r = runTrial(n, cfg, steps, sd, E); ['ls', 'kf', 'lo'].forEach(k => agg[k].push(...r[k])); agg.inside += r.inside; agg.n += r.n; });
+    const st = a => ({ med: ptile(a, .5), p90: ptile(a, .9), w2: a.filter(e => e < 2).length / a.length });
+    out.push({ n, ls: st(agg.ls), kf: st(agg.kf), lo: st(agg.lo), cal: agg.inside / agg.n });
+  }
+  return out;
+}
+if (typeof module !== 'undefined') module.exports = { runTrial, benchmark, ptile, E: require('./engine.js') };
+
+/* ================= LOCUS UI ================= */
+const $ = id => document.getElementById(id);
+const C = { aqua: '#22C3E6', aquaD: '#0E9DBE', aquaL: '#BFE9F3', em: '#10B981', emD: '#0B8A5E', ink: '#0B3A4A', amber: '#F5A524', coral: '#EF6A6A', slate: '#7C93C3' };
+const SC = 30; // px per metre on the 1200x720 canvases
+const trustCol = t => t > 0.7 ? C.em : t > 0.4 ? C.amber : C.coral;
+const pct = v => Math.round(v * 100);
+let tabNow = 'dash';
+
+/* ---------- shared floor drawing ---------- */
+function drawFloor(ctx, o = {}) {
+  const s = o.scale || SC; ctx.save(); ctx.clearRect(0, 0, FLOOR.w * s, FLOOR.h * s);
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, FLOOR.w * s, FLOOR.h * s);
+  ROOMS.forEach(r => {
+    const [a, b, c, d] = r.r; const hot = o.hot && o.hot[r.id] || 0;
+    ctx.fillStyle = r.id === 'corr' ? '#F2FBFD' : '#FAFEFF'; ctx.fillRect(a * s, b * s, (c - a) * s, (d - b) * s);
+    if (hot > 0.02) { ctx.fillStyle = `rgba(16,185,129,${Math.min(0.32, hot * 0.36)})`; ctx.fillRect(a * s, b * s, (c - a) * s, (d - b) * s); }
+    if (!o.noLabels) { ctx.fillStyle = 'rgba(11,58,74,.42)'; ctx.font = `600 ${Math.round(s * 0.5)}px Figtree, sans-serif`; ctx.textAlign = 'center'; ctx.fillText(r.name.toUpperCase(), (a + c) / 2 * s, (SITE_ID === 'warehouse' ? 8.2 : b + (b === 0 ? 8.1 : 1.15)) * s); }
+  });
+  ctx.strokeStyle = o.wallCol || '#7FCBDF'; ctx.lineWidth = Math.max(2, s * 0.14); ctx.lineCap = 'round'; ctx.beginPath();
+  WALLS.forEach(w => { ctx.moveTo(w[0] * s, w[1] * s); ctx.lineTo(w[2] * s, w[3] * s); }); ctx.stroke(); ctx.restore();
+}
+function drawEllipse(ctx, e, cx, cy, s, fill, stroke) {
+  ctx.save(); ctx.translate(cx * s, cy * s); ctx.rotate(e.th); ctx.beginPath(); ctx.ellipse(0, 0, e.a * s, e.b * s, 0, 0, 7); ctx.fillStyle = fill; ctx.fill(); ctx.strokeStyle = stroke; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
+}
+
+/* ---------- live simulation state ---------- */
+const DEF = { sigma: 0.6, loss: 0.10, wallBias: 1.8, burst: 0.004, obstructBias: 4, driftBias: 2.5 };
+const cfg = { ...DEF, dead: new Set(), obstruct: new Set(), drift: new Set() };
+let nAnch = 6, anchors, walker, rng, loc, kf, lastLs, lastTruth, lastEst, acc = 0, tPrev = 0, simT = 0;
+let frame = { truth: [3, 12], est: null, ls: null, out: null, kfp: null }, prevFrame = null;
+let hist = { lo: [], kf: [], ls: [] }, trail = [];
+const show = { cloud: true, base: true, links: true };
+function resetSim() {
+  anchors = DROP_ORDER.slice(0, nAnch).map(i => ANCHORS[i]);
+  rng = rngMake(2026); walker = new Walker(1.2, 6); kf = new KalmanCV(); lastLs = [20, 12]; trail = []; hist = { lo: [], kf: [], ls: [] }; prevFrame = null;
+  loc = new Locus(anchors, { N: 600, sigma: cfg.sigma, rng: rngMake(11), inflate: 2.0 }); buildAnchorList();
+}
+function simStep() {
+  const dt = 0.1, t = walker.step(dt).slice(); loc.sigma = cfg.sigma;
+  const m = measure(t, anchors, cfg, rng), ls = lsFix(anchors, m, lastLs); if (ls) lastLs = ls;
+  const kp = kf.update(ls, dt), out = loc.step(m, dt); simT += dt;
+  prevFrame = frame; frame = { truth: t, ls, out, kfp: kp, meas: m };
+  if (out) { trail.push(out.pos.slice()); if (trail.length > 40) trail.shift(); }
+  const e = (p) => p ? Math.hypot(p[0] - t[0], p[1] - t[1]) : null;
+  hist.lo.push(out ? e(out.pos) : null); hist.kf.push(e(kp)); hist.ls.push(e(ls));
+  Object.values(hist).forEach(a => { if (a.length > 300) a.shift(); });
+}
+
+/* ---------- map render ---------- */
+const mapC = $('map'), mctx = mapC.getContext('2d');
+function lerp(a, b, f) { return a + (b - a) * f; }
+function renderMap(f) {
+  const out = frame.out; drawFloor(mctx, { hot: out && out.rooms });
+  const ctx = mctx, s = SC;
+  /* link lines */
+  if (show.links && out) anchors.forEach((a, i) => {
+    const t = out.trust[i], dead = cfg.dead.has(a.id); ctx.save(); ctx.beginPath(); ctx.moveTo(a.x * s, a.y * s); ctx.lineTo(out.pos[0] * s, out.pos[1] * s);
+    ctx.strokeStyle = dead ? 'rgba(239,106,106,.35)' : trustCol(t); ctx.globalAlpha = dead ? 1 : 0.15 + 0.5 * t; ctx.lineWidth = dead ? 1.5 : 1 + t * 3; if (dead || !out.usable[i]) ctx.setLineDash([6, 7]); ctx.stroke(); ctx.restore();
+  });
+  /* particles */
+  if (show.cloud && loc.inited) { ctx.fillStyle = 'rgba(16,185,129,.35)'; for (let i = 0; i < loc.N; i += 2) { ctx.fillRect(loc.px[i] * s - 1.5, loc.py[i] * s - 1.5, 3, 3); } }
+  /* trail */
+  if (trail.length > 2) { ctx.save(); ctx.lineWidth = 3; ctx.lineCap = 'round'; for (let i = 1; i < trail.length; i++) { ctx.strokeStyle = `rgba(16,185,129,${i / trail.length * 0.55})`; ctx.beginPath(); ctx.moveTo(trail[i - 1][0] * s, trail[i - 1][1] * s); ctx.lineTo(trail[i][0] * s, trail[i][1] * s); ctx.stroke(); } ctx.restore(); }
+  /* anchors */
+  anchors.forEach((a, i) => {
+    const dead = cfg.dead.has(a.id), t = out ? out.trust[i] : 0.8, col = dead ? C.coral : trustCol(t);
+    ctx.save(); ctx.translate(a.x * s, a.y * s);
+    ctx.beginPath(); ctx.arc(0, 0, 17, 0, 7); ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 4; ctx.strokeStyle = '#E7F5F9'; ctx.stroke();
+    ctx.beginPath(); ctx.arc(0, 0, 17, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (dead ? 1 : Math.max(0.04, t))); ctx.strokeStyle = col; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.stroke();
+    ctx.fillStyle = dead ? C.coral : C.aquaD; ctx.beginPath(); ctx.arc(0, 0, 5, 0, 7); ctx.fill();
+    ctx.fillStyle = C.ink; ctx.font = '700 13px Figtree'; ctx.textAlign = 'center'; ctx.fillText(a.id + (dead ? ' ✕' : ''), 0, -24); ctx.restore();
+  });
+  if (!out) return;
+  const fr = Math.min(1, f), px = prevFrame && prevFrame.out ? prevFrame.out.pos : out.pos;
+  const ex = lerp(px[0], out.pos[0], fr), ey = lerp(px[1], out.pos[1], fr);
+  const tx = prevFrame ? lerp(prevFrame.truth[0], frame.truth[0], fr) : frame.truth[0], ty = prevFrame ? lerp(prevFrame.truth[1], frame.truth[1], fr) : frame.truth[1];
+  drawEllipse(ctx, out.ell, ex, ey, s, 'rgba(16,185,129,.16)', 'rgba(16,185,129,.9)');
+  if (show.base && frame.ls) { const x = frame.ls[0] * s, y = frame.ls[1] * s; ctx.save(); ctx.translate(x, y); ctx.rotate(Math.PI / 4); ctx.fillStyle = C.amber; ctx.fillRect(-6, -6, 12, 12); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.strokeRect(-6, -6, 12, 12); ctx.restore(); }
+  /* truth */
+  ctx.beginPath(); ctx.arc(tx * s, ty * s, 7, 0, 7); ctx.fillStyle = C.ink; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5; ctx.stroke();
+  /* estimate with pulse */
+  const pul = (performance.now() % 1800) / 1800; ctx.beginPath(); ctx.arc(ex * s, ey * s, 10 + pul * 22, 0, 7); ctx.strokeStyle = `rgba(16,185,129,${0.5 * (1 - pul)})`; ctx.lineWidth = 3; ctx.stroke();
+  ctx.beginPath(); ctx.arc(ex * s, ey * s, 11, 0, 7); ctx.fillStyle = C.em; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 3.5; ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(ex * s, ey * s, 3.5, 0, 7); ctx.fill();
+}
+
+/* ---------- side panels ---------- */
+let aRows = {};
+function buildAnchorList() {
+  const box = $('anchors'); box.innerHTML = ''; aRows = {};
+  anchors.forEach(a => {
+    const d = document.createElement('div'); d.className = 'arow';
+    d.innerHTML = `<div class="t"><span>${a.id}</span><span class="pill g" data-s>Trusted</span><button class="tog" data-k aria-label="Toggle ${a.id} offline">Kill</button><em data-v>–</em></div><div class="bar"><i data-b style="width:50%"></i></div><div class="why" data-w>…</div>`;
+    d.querySelector('[data-k]').onclick = () => toggleDead(a.id); box.appendChild(d);
+    aRows[a.id] = { el: d, s: d.querySelector('[data-s]'), v: d.querySelector('[data-v]'), b: d.querySelector('[data-b]'), w: d.querySelector('[data-w]'), k: d.querySelector('[data-k]') };
+  });
+}
+function updatePanels() {
+  const out = frame.out; if (!out) return; const t = frame.truth;
+  anchors.forEach((a, i) => {
+    const r = aRows[a.id], dead = cfg.dead.has(a.id), tr = out.trust[i];
+    r.el.classList.toggle('dead', dead); r.b.style.width = (dead ? 100 : Math.max(3, pct(tr))) + '%'; r.b.style.background = dead ? C.coral : trustCol(tr);
+    r.v.textContent = dead ? 'offline' : tr.toFixed(2); r.k.textContent = dead ? 'Revive' : 'Kill';
+    r.s.className = 'pill ' + (dead ? 'r' : tr > 0.7 ? 'g' : tr > 0.4 ? 'a' : 'r'); r.s.textContent = dead ? 'Offline' : tr > 0.7 ? 'Trusted' : tr > 0.4 ? 'Down-weighted' : 'Ignored';
+    r.w.textContent = dead ? 'No packets: anchor failure detected, alert sent' : out.reasons[i];
+  });
+  /* rooms */
+  const rs = Object.entries(out.rooms).sort((a, b) => b[1] - a[1]), top = rs[0];
+  $('b-room').firstChild.textContent = roomName(top[0]) + ' · ' + pct(top[1]) + '%';
+  const err = Math.hypot(out.pos[0] - t[0], out.pos[1] - t[1]);
+  $('b-room2').textContent = 'True room: ' + roomName(roomAt(t[0], t[1])) + (roomAt(t[0], t[1]) === top[0] ? ' ✓ match' : ' (filter still converging)');
+  $('rooms').innerHTML = rs.slice(0, 4).map(([id, p]) => `<div class="r"><span>${roomName(id)}</span><div class="bar"><i style="width:${pct(p)}%;background:${C.em}"></i></div><em>${pct(p)}%</em></div>`).join('');
+  /* kpis */
+  const lsE = frame.ls ? Math.hypot(frame.ls[0] - t[0], frame.ls[1] - t[1]) : null;
+  $('k-err').innerHTML = err.toFixed(1) + '<i>m</i>'; $('k-err2').textContent = 'vs trilateration ' + (lsE == null ? '–' : lsE.toFixed(1) + ' m');
+  $('k-ell').innerHTML = out.ell.a.toFixed(1) + '<i>m</i>';
+  const usable = anchors.filter((a, i) => out.usable[i] && !cfg.dead.has(a.id)).length; $('k-anc').innerHTML = usable + '<i>/ ' + anchors.length + '</i>';
+  $('k-anc2').textContent = cfg.dead.size ? cfg.dead.size + ' offline · degrading gracefully' : 'receiving this cycle';
+  $('k-wall').innerHTML = out.wallMu.toFixed(1) + '<i>m / wall</i>';
+  const worst = anchors.map((a, i) => [i, out.trust[i]]).filter(([i]) => out.usable[i] && !cfg.dead.has(anchors[i].id)).sort((a, b) => a[1] - b[1])[0];
+  $('mapnote').innerHTML = `<b>${roomName(top[0])}</b> · ${pct(top[1])}% sure · ±${out.ell.a.toFixed(1)} m` + (worst && worst[1] < 0.5 ? `<br>${anchors[worst[0]].id} distrusted: ${out.reasons[worst[0]]}` : cfg.dead.size ? `<br>${[...cfg.dead].join(', ')} offline, using remaining anchors + motion history` : '');
+}
+
+/* ---------- error chart ---------- */
+const ec = $('errchart'), ectx = ec.getContext('2d');
+function drawLines(ctx, W, H, series, o) {
+  ctx.clearRect(0, 0, W, H); const L = 46, R = 14, T = 12, B = 26, pw = W - L - R, ph = H - T - B;
+  const ymax = o.ymax; ctx.font = '600 13px Figtree'; ctx.fillStyle = '#7A9AA6'; ctx.textAlign = 'right';
+  for (let v = 0; v <= ymax + 1e-6; v += o.ystep) { const y = T + ph - v / ymax * ph; ctx.strokeStyle = '#E3F3F7'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(L, y); ctx.lineTo(W - R, y); ctx.stroke(); ctx.fillText(v + ' m', L - 8, y + 4); }
+  if (o.target) { const y = T + ph - o.target / ymax * ph; ctx.setLineDash([6, 6]); ctx.strokeStyle = C.em; ctx.globalAlpha = .6; ctx.beginPath(); ctx.moveTo(L, y); ctx.lineTo(W - R, y); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1; ctx.fillStyle = C.emD; ctx.textAlign = 'left'; ctx.fillText('2 m target', L + 6, y - 6); }
+  series.forEach(se => { ctx.beginPath(); let pen = false; const n = o.n;
+    se.d.forEach((v, i) => { if (v == null) { pen = false; return; } const x = L + (o.xs ? o.xs[i] : i / (n - 1)) * pw, y = T + ph - Math.min(v, ymax) / ymax * ph; if (!pen) { ctx.moveTo(x, y); pen = true; } else ctx.lineTo(x, y); });
+    ctx.strokeStyle = se.c; ctx.lineWidth = se.w || 3; ctx.lineJoin = 'round'; ctx.stroke(); });
+  return { L, T, pw, ph };
+}
+function renderChart() {
+  const n = 300, pad = a => { const r = new Array(n - a.length).fill(null).concat(a); return r; };
+  const sm = a => a.map((v, i) => { if (v == null) return null; let s = 0, c = 0; for (let k = Math.max(0, i - 2); k <= i; k++) if (a[k] != null) { s += a[k]; c++; } return s / c; });
+  const all = [...hist.lo, ...hist.kf, ...hist.ls].filter(v => v != null); const ymax = Math.max(4, Math.ceil(Math.max(...all, 1) / 2) * 2);
+  drawLines(ectx, 1200, 360, [{ d: pad(sm(hist.ls)), c: C.amber, w: 2 }, { d: pad(sm(hist.kf)), c: C.slate, w: 2.5 }, { d: pad(sm(hist.lo)), c: C.em, w: 4 }], { ymax, ystep: ymax > 8 ? 4 : 2, n, target: 2 });
+}
+
+/* ---------- controls ---------- */
+function bindRange(id, outId, fmt, set) { const el = $(id); const f = () => { set(+el.value); $(outId).textContent = fmt(+el.value); }; el.addEventListener('input', f); f(); return el; }
+bindRange('s-sigma', 'o-sigma', v => v.toFixed(1) + ' m', v => cfg.sigma = v);
+bindRange('s-loss', 'o-loss', v => v + '%', v => cfg.loss = v / 100);
+bindRange('s-wall', 'o-wall', v => v.toFixed(1) + ' m/wall', v => cfg.wallBias = v);
+bindRange('s-n', 'o-n', v => v, v => { if (v !== nAnch) { nAnch = v; if (anchors) resetSim(); syncScen(); } });
+function toggleSet(set, id) { set.has(id) ? set.delete(id) : set.add(id); }
+function ensure(id) { const idx = DROP_ORDER.findIndex(i => ANCHORS[i].id === id); if (idx >= nAnch) { nAnch = 6; $('s-n').value = 6; $('o-n').textContent = 6; resetSim(); } }
+function toggleDead(id) { toggleSet(cfg.dead, id); syncScen(); notifyApp(); }
+function syncScen() {
+  $('sc-body').setAttribute('aria-pressed', cfg.obstruct.has('A3')); $('sc-drift').setAttribute('aria-pressed', cfg.drift.has('A2')); $('sc-kill').setAttribute('aria-pressed', cfg.dead.has('A3'));
+  $('sc-kill').textContent = cfg.dead.has('A3') ? 'Revive A3' : 'Kill A3';
+}
+$('sc-body').onclick = () => { ensure('A3'); toggleSet(cfg.obstruct, 'A3'); syncScen(); };
+$('sc-drift').onclick = () => { ensure('A2'); toggleSet(cfg.drift, 'A2'); syncScen(); };
+$('sc-kill').onclick = () => { ensure('A3'); toggleDead('A3'); };
+function setSl(id, v, o, fmt) { $(id).value = v; $(id).dispatchEvent(new Event('input')); }
+$('sc-storm').onclick = () => { nAnch = 6; setSl('s-n', 6); resetSim(); setSl('s-sigma', 1.2); setSl('s-loss', 40); setSl('s-wall', 2.4); cfg.obstruct = new Set(['A3']); cfg.drift = new Set(['A2']); cfg.dead = new Set(['A5']); syncScen(); notifyApp(); };
+$('sc-reset').onclick = () => { setSl('s-sigma', DEF.sigma); setSl('s-loss', 10); setSl('s-wall', DEF.wallBias); setSl('s-n', 6); cfg.dead.clear(); cfg.obstruct.clear(); cfg.drift.clear(); resetSim(); syncScen(); notifyApp(); };
+[['c-cloud', 'cloud'], ['c-base', 'base'], ['c-links', 'links']].forEach(([id, k]) => $(id).onclick = e => { show[k] = !show[k]; e.currentTarget.setAttribute('aria-pressed', show[k]); });
+mapC.addEventListener('click', e => { const r = mapC.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * FLOOR.w, y = (e.clientY - r.top) / r.height * FLOOR.h; const a = anchors.find(a => Math.hypot(a.x - x, a.y - y) < 1.1); if (a) toggleDead(a.id); });
+mapC.addEventListener('mousemove', e => { const r = mapC.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * FLOOR.w, y = (e.clientY - r.top) / r.height * FLOOR.h; mapC.style.cursor = anchors.some(a => Math.hypot(a.x - x, a.y - y) < 1.1) ? 'pointer' : 'default'; });
+
+/* ---------- tabs ---------- */
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('nav button').forEach(x => x.setAttribute('aria-selected', x === b));
+  document.querySelectorAll('section.view').forEach(v => v.classList.toggle('on', v.id === 'v-' + b.dataset.v)); tabNow = b.dataset.v;
+  if (tabNow === 'plan') renderPlanner(); if (tabNow === 'bench') renderBench(); window.scrollTo({ top: 0 });
+});
+
+/* ================= PLANNER ================= */
+const PL = { cand: [], cells: [], plan: [], ready: false };
+function errModel(info) { // info = {a,b,c} of 2x2 symmetric matrix + weak prior; expected error = sqrt(trace(inv))
+  const a = info[0] + 1 / 36, b = info[1], c = info[2] + 1 / 36, det = a * c - b * b; return Math.sqrt((a + c) / det);
+}
+function contrib(ax, ay, cx, cy) {
+  const dx = cx - ax, dy = cy - ay, d = Math.max(0.5, Math.hypot(dx, dy)), k = wallsBetween(ax, ay, cx, cy), v = 0.8 * 0.8 + Math.pow(k * 0.9, 2) + Math.pow(d * 0.06, 2), ux = dx / d, uy = dy / d;
+  return [ux * ux / v, ux * uy / v, uy * uy / v];
+}
+function planInit() {
+  if (PL.ready) return; PL.cand = []; PL.cells = [];
+  for (let y = 1; y < 24; y += 2) for (let x = 1; x < 40; x += 2) PL.cand.push([x, y]);
+  for (let y = 1; y < 24; y += 2) for (let x = 1; x < 40; x += 2) PL.cells.push([x, y]);
+  const M = PL.cand.map(c => PL.cells.map(q => contrib(c[0], c[1], q[0], q[1])));
+  const info = PL.cells.map(() => [0, 0, 0]), chosen = [];
+  for (let n = 0; n < 10; n++) {
+    let best = -1, bs = 1e9;
+    PL.cand.forEach((c, ci) => { if (chosen.includes(ci)) return; let s = 0; for (let q = 0; q < PL.cells.length; q++) { const m = M[ci][q], I = info[q]; s += Math.min(8, errModel([I[0] + m[0], I[1] + m[1], I[2] + m[2]])); } if (s < bs) { bs = s; best = ci; } });
+    chosen.push(best); for (let q = 0; q < PL.cells.length; q++) { const m = M[best][q]; info[q][0] += m[0]; info[q][1] += m[1]; info[q][2] += m[2]; }
+  }
+  PL.plan = chosen.map(i => PL.cand[i]); PL.ready = true;
+}
+function errMap(set) { const out = []; for (let y = 0; y < FLOOR.h; y++) for (let x = 0; x < FLOOR.w; x++) { const I = [0, 0, 0]; set.forEach(a => { const m = contrib(a[0], a[1], x + .5, y + .5); I[0] += m[0]; I[1] += m[1]; I[2] += m[2]; }); out.push(Math.min(8, errModel(I))); } return out; }
+const mixc = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+function heat(e) { const G = [16, 185, 129], A = [34, 195, 230], Y = [245, 165, 36]; if (e < 0.8) return mixc([120, 226, 180], G, e / 0.8); if (e < 2) return mixc(G, A, (e - 0.8) / 1.2); return mixc(A, Y, Math.min(1, (e - 2) / 2.5)); }
+const pctx = $('pmap').getContext('2d'), COST = 2800;
+function stats(set) { const m = errMap(set), mean = m.reduce((a, b) => a + b, 0) / m.length, cov = m.filter(v => v < 2).length / m.length; return { m, mean, cov }; }
+function renderPlanner() {
+  planInit(); const n = +$('p-n').value, set = PL.plan.slice(0, n), st = stats(set);
+  $('p-nv').textContent = n; $('p-err').textContent = st.mean.toFixed(1) + ' m'; $('p-cov').textContent = pct(st.cov) + '%'; $('p-cost').textContent = '₹' + (n * COST).toLocaleString('en-IN');
+  $('p-sub').textContent = n + ' anchors · modelled';
+  drawFloor(pctx, { noLabels: false, wallCol: 'rgba(11,58,74,.55)' });
+  pctx.save(); pctx.globalCompositeOperation = 'source-over'; st.m.forEach((e, i) => { const x = i % FLOOR.w, y = (i / FLOOR.w) | 0, c = heat(e); pctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},.62)`; pctx.fillRect(x * SC, y * SC, SC, SC); }); pctx.restore();
+  pctx.save(); pctx.strokeStyle = 'rgba(11,58,74,.6)'; pctx.lineWidth = 4; pctx.lineCap = 'round'; pctx.beginPath(); WALLS.forEach(w => { pctx.moveTo(w[0] * SC, w[1] * SC); pctx.lineTo(w[2] * SC, w[3] * SC); }); pctx.stroke(); pctx.restore();
+  set.forEach((a, i) => { pctx.beginPath(); pctx.arc(a[0] * SC, a[1] * SC, 15, 0, 7); pctx.fillStyle = C.ink; pctx.fill(); pctx.strokeStyle = '#fff'; pctx.lineWidth = 3; pctx.stroke(); pctx.fillStyle = '#fff'; pctx.font = '700 13px Figtree'; pctx.textAlign = 'center'; pctx.fillText(i + 1, a[0] * SC, a[1] * SC + 4.5); });
+  const dense = []; for (let y = 4; y < 24; y += 8) for (let x = 4; x < 40; x += 8) dense.push([x, y]); const dn = stats(dense), cur = stats(ANCHORS.map(a => [a.x, a.y]));
+  const row = (nm, k, s, win) => `<tr><td>${nm}</td><td>${k}</td><td>₹${(k * COST).toLocaleString('en-IN')}</td><td class="${win ? 'win' : ''}">${s.mean.toFixed(1)} m</td></tr>`;
+  $('p-tab').innerHTML = row('Dense grid', dense.length, dn) + row('Hand-placed', ANCHORS.length, cur) + row('LOCUS plan', n, st, true);
+}
+$('p-n').addEventListener('input', renderPlanner);
+
+/* ================= BENCHMARK ================= */
+let benchRes = null, running = false;
+const bcx = $('bchart').getContext('2d');
+function renderBench() {
+  if (!benchRes) { drawLines(bcx, 1200, 600, [], { ymax: 6, ystep: 2, n: 5, target: 2 }); bcx.fillStyle = '#7A9AA6'; bcx.font = '600 18px Figtree'; bcx.textAlign = 'center'; bcx.fillText('Run the benchmark to see results', 600, 300); return; }
+  const r = benchRes, ymax = Math.max(6, Math.ceil(Math.max(...r.map(x => Math.max(x.ls.med, x.kf.med))) / 2) * 2), xs = r.map((_, i) => i / (r.length - 1));
+  const g = drawLines(bcx, 1200, 600, [{ d: r.map(x => x.ls.med), c: C.amber, w: 3 }, { d: r.map(x => x.kf.med), c: C.slate, w: 3 }, { d: r.map(x => x.lo.med), c: C.em, w: 5 }], { ymax, ystep: 2, n: r.length, xs, target: 2 });
+  bcx.textAlign = 'center'; bcx.font = '700 15px Figtree'; bcx.fillStyle = C.ink;
+  r.forEach((x, i) => { const px = g.L + xs[i] * g.pw; bcx.fillText(x.n + ' anchors', px, 590); [[x.lo.med, C.em], [x.kf.med, C.slate], [x.ls.med, C.amber]].forEach(([v, c], k) => { const py = g.T + g.ph - Math.min(v, ymax) / ymax * g.ph; bcx.beginPath(); bcx.arc(px, py, k === 0 ? 7 : 5, 0, 7); bcx.fillStyle = c; bcx.fill(); bcx.strokeStyle = '#fff'; bcx.lineWidth = 2; bcx.stroke(); }); const py = g.T + g.ph - Math.min(x.lo.med, ymax) / ymax * g.ph; bcx.fillStyle = C.emD; bcx.fillText(x.lo.med.toFixed(1), px, py + 26); });
+  $('b-tab').innerHTML = r.map(x => `<tr><td>${x.n}</td><td>${x.ls.med.toFixed(1)}</td><td>${x.kf.med.toFixed(1)}</td><td class="win">${x.lo.med.toFixed(1)}</td><td>${x.lo.p90.toFixed(1)}</td><td>${pct(x.lo.w2)}%</td><td>${pct(x.cal)}%</td></tr>`).join('');
+}
+$('b-run').onclick = async () => {
+  if (running) return; running = true; const btn = $('b-run'); btn.disabled = true;
+  const bc = { sigma: 0.8, loss: 0.15, wallBias: 2.2, burst: 0.012, obstructBias: 4, driftBias: 2.5, inflate: 2.0, dead: new Set(), obstruct: new Set(), drift: new Set() };
+  const seeds = [1, 2, 3], res = [], t0 = performance.now(), tick = () => new Promise(r => setTimeout(r, 0));
+  for (let n = 6; n >= 2; n--) {
+    btn.textContent = 'Running ' + n + ' anchors…'; await tick();
+    const agg = { ls: [], kf: [], lo: [], inside: 0, n: 0 };
+    for (const sd of seeds) { const r = runTrial(n, bc, 300, sd, engineNow()); ['ls', 'kf', 'lo'].forEach(k => agg[k].push(...r[k])); agg.inside += r.inside; agg.n += r.n; await tick(); }
+    const st = a => ({ med: ptile(a, .5), p90: ptile(a, .9), w2: a.filter(e => e < 2).length / a.length });
+    res.push({ n, ls: st(agg.ls), kf: st(agg.kf), lo: st(agg.lo), cal: agg.inside / agg.n });
+  }
+  benchRes = res; $('b-meta').textContent = '3 paths × 300 steps · ' + ((performance.now() - t0) / 1000).toFixed(1) + ' s'; btn.disabled = false; btn.textContent = 'Run again'; running = false; renderBench();
+};
+
+/* ================= SITE SWITCH ================= */
+function notifyApp() {}
+function engineNow() { return { DROP_ORDER, ANCHORS, rngMake, Walker, KalmanCV, Locus, measure, lsFix }; }
+function switchSite(id) {
+  setSite(id); document.querySelectorAll('.site button').forEach(b => b.setAttribute('aria-pressed', b.dataset.site === id));
+  nAnch = 6; $('s-n').value = 6; $('o-n').textContent = 6; cfg.dead.clear(); cfg.obstruct.clear(); cfg.drift.clear(); resetSim(); syncScen();
+  PL.ready = false; benchRes = null; $('b-meta').textContent = ''; $('b-tab').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--ink3);padding:30px">Press “Run benchmark”</td></tr>';
+  $('d-floor').textContent = id === 'warehouse' ? 'Floor map · Bay 1' : 'Floor map · Level 2';
+  if (tabNow === 'plan') renderPlanner(); if (tabNow === 'bench') renderBench();
+}
+document.querySelectorAll('.site button').forEach(b => b.onclick = () => { if (b.dataset.site !== SITE_ID) switchSite(b.dataset.site); });
+
+/* ================= MAIN LOOP ================= */
+resetSim(); syncScen();
+let lastPanel = 0;
+function loop(now) {
+  if (!tPrev) tPrev = now; const d = Math.min(0.35, (now - tPrev) / 1000); tPrev = now; acc += d; let n = 0;
+  while (acc >= 0.1 && n < 3) { simStep(); acc -= 0.1; n++; } if (n === 3) acc = 0;
+  if (tabNow === 'dash') { renderMap(acc / 0.1); if (now - lastPanel > 250) { updatePanels(); renderChart(); lastPanel = now; } }
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+{ const hs = location.hash.slice(1).split('-'), b = document.querySelector('nav button[data-v="' + hs[0] + '"]'); if (hs[1] === 'wh') switchSite('warehouse'); if (b) b.click(); }
+
+</script>
+</body>
+</html>
