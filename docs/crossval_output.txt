@@ -1,0 +1,8 @@
+Cross-validation: JS engine (Node) vs Python port - identical readings, identical RNG seed, N=400 particles, 0.1 s step
+columns: max divergence over the run | LS fix [m] | KalmanCV [m] | LOCUS pos [m] | trust [abs] | ellipse axis [m] | reason strings equal
+hospital  seed=1 anchors=6 sigma=0.8 steps=300 | LS 1.28e-14 | KF 0.00e+00 | LOCUS 4.67e-14 | trust 6.22e-15 | ellipse 8.88e-15 | reasons 1800/1800
+hospital  seed=2 anchors=4 sigma=0.8 steps=300 | LS 8.88e-15 | KF 0.00e+00 | LOCUS 4.63e-14 | trust 6.00e-15 | ellipse 1.51e-14 | reasons 1200/1200
+hospital  seed=5 anchors=3 sigma=1.2 steps=300 | LS 1.78e-14 | KF 0.00e+00 | LOCUS 5.69e-14 | trust 4.44e-15 | ellipse 2.49e-14 | reasons 900/900
+warehouse seed=3 anchors=6 sigma=0.6 steps=300 | LS 3.76e-14 | KF 0.00e+00 | LOCUS 5.12e-14 | trust 6.11e-15 | ellipse 1.02e-14 | reasons 1800/1800
+warehouse seed=4 anchors=2 sigma=0.8 steps=300 | LS 1.47e-12 | KF 0.00e+00 | LOCUS 3.52e-14 | trust 2.44e-15 | ellipse 1.78e-14 | reasons 600/600
+MAX LOCUS position divergence over all runs: 5.685e-14 m
