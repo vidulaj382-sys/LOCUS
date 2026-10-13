@@ -213,6 +213,11 @@ class Locus:
         # 2. trust scorer: residual vs motion prior, jump, variance -> 0..1 + reason
         feats = self._features(meas, prior, prior_std)
         reasons, usable, tRs, scored = [None] * len(A), [False] * len(A), [], [None] * len(A)
+        batch = {}
+        if self.scorer is not None:
+            idx = [i for i, f in enumerate(feats) if f]
+            if idx:
+                batch = dict(zip(idx, self.scorer.score_batch([feats[i]['x'] for i in idx])))
         for i, a in enumerate(A):
             m = meas[i]
             if not m:
@@ -229,7 +234,7 @@ class Locus:
             tRs.append(f['tR'])
             ml_reason = None
             if self.scorer is not None:
-                p, ml_reason = self.scorer.score(f['x'])
+                p, ml_reason = batch[i]
                 raw = max(0.02, p)
             else:
                 raw = max(0.02, f['tR'] * f['tJ'] * math.sqrt(f['tV']))
@@ -301,7 +306,7 @@ class Locus:
             mu = (m['r'] - math.hypot(mo['mx'] - a['x'], mo['my'] - a['y'])) / ke
             self.wallMu = min(3.5, max(0.8, self.wallMu + 0.02 * (mu - self.wallMu)))
         out = dict(wallMu=self.wallMu, pos=list(self.est), ell=ell, rooms=rp, trust=list(self.trust), reasons=reasons,
-                   usable=usable, fix=self.fix, ess=ess / N, relocal=relocal,
+                   usable=usable, fix=self.fix, ess=ess / N, relocal=relocal, ell_raw=dict(l1=l1, l2=l2, th=ell['th']),
                    features=[f['x'] if f else None for f in feats], raw=scored)
         # 6. resample + roughen
         if ess < N * 0.6:

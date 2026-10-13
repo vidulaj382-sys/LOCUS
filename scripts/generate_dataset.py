@@ -28,6 +28,8 @@ One row = one (timestamp, reference point/anchor) observation ("long" format).
   nlos          int    1 if the reading is non-line-of-sight / biased (wall, obstruction, burst, drift)
   n_walls       int    walls crossed by the straight anchor->target line
   bias_m        float  additive range bias injected into this reading (what an ideal model would remove)
+  impaired      int    1 if a NON-wall impairment (obstruction / burst / drift) corrupts the reading; wall-only NLOS is
+                       'expected' bias the filter models, so it is nlos=1, impaired=0. This is the ML trust label.
 
 Files written under data/:
   train.csv                 labelled training set (all columns above)
@@ -53,7 +55,7 @@ DATA = ROOT / 'data'
 DT = 0.1
 TRAIN_BASE_SEED, HIDDEN_BASE_SEED = 1000, 90000
 PUBLIC_COLS = ('run_id', 'site', 't_idx', 'timestamp_s', 'anchor_id', 'anchor_x', 'anchor_y', 'range_m', 'rssi_dbm', 'packet_ok')
-TRAIN_COLS = PUBLIC_COLS + ('truth_x', 'truth_y', 'true_range_m', 'nlos', 'n_walls', 'bias_m')
+TRAIN_COLS = PUBLIC_COLS + ('truth_x', 'truth_y', 'true_range_m', 'nlos', 'n_walls', 'bias_m', 'impaired')
 TRUTH_COLS = ('run_id', 't_idx', 'timestamp_s', 'truth_x', 'truth_y')
 
 # ---- TRAIN scenarios: static obstruction sets, stock waypoint loop ----
@@ -148,7 +150,8 @@ def synth_run(site_id, seed, steps, cfg_spec, hidden):
                        packet_ok=0 if m is None else 1, truth_x=round(pos[0], 4), truth_y=round(pos[1], 4),
                        true_range_m=round(math.hypot(pos[0] - a['x'], pos[1] - a['y']), 4),
                        nlos='' if m is None else int(m['nlos']), n_walls='' if m is None else m['walls'],
-                       bias_m='' if m is None else round(m['bias'], 4))
+                       bias_m='' if m is None else round(m['bias'], 4),
+                       impaired='' if m is None else int(m['impaired']))
             rows.append(row)
     meta = dict(site=site_id, seed=seed, steps=steps, dt=DT, speed=speed, offset=off, n_waypoints=len(way),
                 cfg={k: v for k, v in cfg_spec.items() if k != 'tag'}, hidden=hidden)

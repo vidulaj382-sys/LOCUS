@@ -254,9 +254,10 @@ def measure(site, pos, anchors, cfg, rng):
         k = site.walls_between(a['x'], a['y'], pos[0], pos[1])
         bias = k * cfg.wallBias * (0.5 + rng())
         nlos = k > 0
+        imp = False   # True when a non-wall impairment (obstruction / burst / drift) corrupts this reading
         if cfg.obstruct and a['id'] in cfg.obstruct:
             bias += cfg.obstructBias * (0.6 + 0.8 * rng())
-            nlos = True
+            nlos = imp = True
         if cfg.burst:
             st = rng.burst
             if not st.get(a['id']) and rng() < cfg.burst:
@@ -264,10 +265,10 @@ def measure(site, pos, anchors, cfg, rng):
             if st.get(a['id'], 0) > 0:
                 st[a['id']] -= 1
                 bias += 3.2
-                nlos = True
+                nlos = imp = True
         if cfg.drift and a['id'] in cfg.drift:
             bias += cfg.driftBias
-            nlos = True
+            nlos = imp = True
         sigma = cfg.sigma * (1.8 if nlos else 1)
-        out.append({'r': max(0.3, d + bias + sigma * rng.g()), 'nlos': nlos, 'bias': bias, 'walls': k, 'd': d})
+        out.append({'r': max(0.3, d + bias + sigma * rng.g()), 'nlos': nlos, 'bias': bias, 'walls': k, 'd': d, 'impaired': imp})
     return out

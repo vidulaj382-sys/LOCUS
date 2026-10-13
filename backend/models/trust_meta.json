@@ -1,0 +1,73 @@
+{
+ "features": [
+  "res_norm",
+  "res",
+  "abs_res_norm",
+  "jump_norm",
+  "jump",
+  "var_norm",
+  "var",
+  "wall_count",
+  "prior_std",
+  "range",
+  "pred_range",
+  "peer_res_norm",
+  "n_readings",
+  "wall_mu"
+ ],
+ "metrics": {
+  "n_fit": 68448,
+  "n_cal": 33690,
+  "n_eval": 34648,
+  "impaired_rate": 0.30007456903484275,
+  "auc_lgbm": 0.8275631238208875,
+  "auc_heuristic": 0.7646883350817215,
+  "brier_raw": 0.15940251271998743,
+  "brier_calibrated": 0.1658557152756393,
+  "ece_raw": 0.022837119753541205,
+  "ece_calibrated": 0.07854422358383203,
+  "acc_at_0p5": 0.7572442853844378,
+  "iforest_flag_rate_eval": 0.043754329254213804,
+  "iforest_auc_vs_impaired": 0.5780033619340013
+ },
+ "importance_gain": {
+  "res_norm": 0.0787,
+  "res": 0.3797,
+  "abs_res_norm": 0.0085,
+  "jump_norm": 0.0274,
+  "jump": 0.0023,
+  "var_norm": 0.1449,
+  "var": 0.0065,
+  "wall_count": 0.0587,
+  "prior_std": 0.0142,
+  "range": 0.0499,
+  "pred_range": 0.0986,
+  "peer_res_norm": 0.0228,
+  "n_readings": 0.0003,
+  "wall_mu": 0.1075
+ },
+ "importance_mean_abs_shap": {
+  "res_norm": 0.0609,
+  "res": 0.2533,
+  "abs_res_norm": 0.01,
+  "jump_norm": 0.0259,
+  "jump": 0.0021,
+  "var_norm": 0.2827,
+  "var": 0.0138,
+  "wall_count": 0.0518,
+  "prior_std": 0.0158,
+  "range": 0.0866,
+  "pred_range": 0.0784,
+  "peer_res_norm": 0.0345,
+  "n_readings": 0.0003,
+  "wall_mu": 0.0838
+ },
+ "ellipse_inflate": {
+  "heuristic": 8.135255519728297,
+  "ml": 8.692445516155532
+ },
+ "label": "1 = reading NOT corrupted by obstruction/burst/drift (wall-only NLOS counts as trustworthy: the filter models walls)",
+ "trained_on": "simulated train.csv only (seeds 1001,1002,1101,1102); no real hardware",
+ "rounds": 2,
+ "calibration_note": "Isotonic calibration was fitted but made held-out ECE worse (0.023 raw -> 0.079) because the calibration runs use different noise configs; shipped model uses RAW LightGBM probabilities."
+}
