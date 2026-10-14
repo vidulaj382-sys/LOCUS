@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>LOCUS Staff App</title>
+<link rel="manifest" href="manifest-staff.json">
+<meta name="theme-color" content="#22C3E6">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="LOCUS Staff">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -473,6 +481,10 @@ Object.assign(BE, {
     });
   },
 });
+/* ===== PWA: register the service worker (needs https:// or localhost; silently skipped on file:// and plain-http LAN addresses) ===== */
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => { }));
+}
 /* ===== staff app <-> backend wiring (only active when BE.on; otherwise nothing here runs) ===== */
 (function () {
   let lastCtl = '', lastIds = '';

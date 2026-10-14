@@ -1,6 +1,6 @@
 r = lambda f: open(f, encoding='utf8').read()
 eng, bench, app = r('src/engine.js'), r('src/bench.js'), r('src/app.js')
-be = r('src/backend.js')   # optional backend link; both pages work without a backend (fallback to in-browser simulation)
+be = r('src/backend.js') + r('src/pwa.js')   # optional backend link; both pages work without a backend (fallback to in-browser simulation)
 i = app.index('/* ---------- live simulation state')
 j = app.index('/* ================= STAFF APP')
 common, dash = app[:i], app[i:j] + r('src/dash_tail.js')

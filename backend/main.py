@@ -133,19 +133,37 @@ def staff():
     return _file('LOCUS-Staff-App.html')
 
 
+@app.get('/LOCUS-Dashboard.html', include_in_schema=False)
+def dashboard_file():
+    return _file('LOCUS-Dashboard.html')
+
+
+@app.get('/LOCUS-Staff-App.html', include_in_schema=False)
+def staff_file():
+    return _file('LOCUS-Staff-App.html')
+
+
 @app.get('/manifest-{which}.json', include_in_schema=False)
 def manifest(which: str):
-    return _file(f'pwa/manifest-{which}.json')
+    """Same manifest as the static one used on GitHub Pages, but start_url points at the routes this server uses."""
+    if which not in ('dashboard', 'staff'):
+        raise HTTPException(404)
+    m = json.loads((ROOT / f'manifest-{which}.json').read_text())
+    m['start_url'] = '/' if which == 'dashboard' else '/staff'
+    m['scope'] = '/'
+    for sc in m.get('shortcuts', []):
+        sc['url'] = '/staff' + sc['url'].split('.html', 1)[1]
+    return JSONResponse(m, media_type='application/manifest+json')
 
 
 @app.get('/sw.js', include_in_schema=False)
 def sw():
-    return FileResponse(ROOT / 'pwa' / 'sw.js', media_type='text/javascript', headers={'Service-Worker-Allowed': '/', 'Cache-Control': 'no-cache'})
+    return FileResponse(ROOT / 'sw.js', media_type='text/javascript', headers={'Cache-Control': 'no-cache'})
 
 
 @app.get('/icons/{name}', include_in_schema=False)
 def icons(name: str):
-    return _file(f'pwa/icons/{pathlib.Path(name).name}')
+    return _file(f'icons/{pathlib.Path(name).name}')
 
 
 # ------------------------------------------------------------------ status / control
