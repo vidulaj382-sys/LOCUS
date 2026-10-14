@@ -1,0 +1,65 @@
+{
+  "lang": "en",
+  "display": "standalone",
+  "background_color": "#F4FCFE",
+  "scope": "./",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "id": "locus-staff",
+  "name": "LOCUS Staff App",
+  "short_name": "LOCUS Staff",
+  "description": "Find equipment fast: LOCUS staff app (simulation).",
+  "start_url": "LOCUS-Staff-App.html",
+  "theme_color": "#22C3E6",
+  "orientation": "portrait",
+  "categories": [
+    "productivity",
+    "utilities"
+  ],
+  "shortcuts": [
+    {
+      "name": "Live floor map",
+      "short_name": "Map",
+      "url": "LOCUS-Staff-App.html#map",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png",
+          "purpose": "any"
+        }
+      ]
+    },
+    {
+      "name": "System health",
+      "short_name": "Health",
+      "url": "LOCUS-Staff-App.html#alerts",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png",
+          "purpose": "any"
+        }
+      ]
+    }
+  ]
+}

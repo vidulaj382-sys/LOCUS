@@ -1,0 +1,814 @@
+{
+ "HT-hospital-s90001-h0": {
+  "site": "hospital",
+  "seed": 90001,
+  "steps": 600,
+  "dt": 0.1,
+  "speed": 1.0,
+  "offset": 8.0,
+  "n_waypoints": 37,
+  "cfg": {
+   "noise": "low",
+   "sigma": 0.4,
+   "loss": 0.05,
+   "wallBias": 1.2,
+   "burst": 0.002,
+   "obstruct_win": [
+    [
+     "A1",
+     15,
+     40
+    ],
+    [
+     "A4",
+     25,
+     50
+    ]
+   ],
+   "drift": [],
+   "dead_win": []
+  },
+  "hidden": true,
+  "noise_level": "low"
+ },
+ "HT-hospital-s90002-h0": {
+  "site": "hospital",
+  "seed": 90002,
+  "steps": 600,
+  "dt": 0.1,
+  "speed": 1.4,
+  "offset": 4.0,
+  "n_waypoints": 37,
+  "cfg": {
+   "noise": "low",
+   "sigma": 0.4,
+   "loss": 0.05,
+   "wallBias": 1.2,
+   "burst": 0.002,
+   "obstruct_win": [
+    [
+     "A1",
+     15,
+     40
+    ],
+    [
+     "A4",
+     25,
+     50
+    ]
+   ],
+   "drift": [],
+   "dead_win": []
+  },
+  "hidden": true,
+  "noise_level": "low"
+ },
+ "HT-hospital-s91001-h1": {
+  "site": "hospital",
+  "seed": 91001,
+  "steps": 600,
+  "dt": 0.1,
+  "speed": 1.0,
+  "offset": 7.0,
+  "n_waypoints": 37,
+  "cfg": {
+   "noise": "low",
+   "sigma": 0.6,
+   "loss": 0.2,
+   "wallBias": 2.8,
+   "burst": 0.006,
+   "obstruct_win": [
+    [
+     "A5",
+     10,
+     45
+    ]
+   ],
+   "drift": [],
+   "dead_win": [
+    [
+     "A6",
+     30,
+     60
+    ]
+   ]
+  },
+  "hidden": true,
+  "noise_level": "low"
+ },
+ "HT-hospital-s91002-h1": {
+  "site": "hospital",
+  "seed": 91002,
+  "steps": 600,
+  "dt": 0.1,
+  "speed": 1.4,
+  "offset": 10.0,
+  "n_waypoints": 37,
+  "cfg": {
+   "noise": "low",
+   "sigma": 0.6,
+   "loss": 0.2,
+   "wallBias": 2.8,
+   "burst": 0.006,
+   "obstruct_win": [
+    [
+     "A5",
+     10,
+     45
+    ]
+   ],
+   "drift": [],
+   "dead_win": [
+    [
+     "A6",
+     30,
+     60
+    ]
+   ]
+  },
+  "hidden": true,
+  "noise_level": "low"
+ },
+ "HT-hospital-s92001-h2": {
+  "site": "hospital",
+  "seed": 92001,
+  "steps": 600,
+  "dt": 0.1,
+  "speed": 1.0,
+  "offset": 0.0,
+  "n_waypoints": 37,
+  "cfg": {
+   "noise": "mid",
+   "sigma": 1.0,
+   "loss": 0.1,
+   "wallBias": 3.2,
+   "burst": 0.01,
+   "obstruct_win": [
+    [
+     "A2",
+     5,
+     30
+    ],
+    [
+     "A3",
+     30,
+     55
+    ],
+    [
+     "A6",
+     20,
+     40
+    ]
+   ],
+   "drift": [],
+   "dead_win": []
+  },
+  "hidden": true,
+  "noise_level": "mid"
+ },
+ "HT-hospital-s92002-h2": {
+  "site": "hospital",
+  "seed": 92002,
+  "steps": 600,
+  "dt": 0.1,
+  "speed": 1.4,
+  "offset": 26.0,
+  "n_waypoints": 37,
+  "cfg": {
+   "noise": "mid",
+   "sigma": 1.0,
+   "loss": 0.1,
+   "wallBias": 3.2,
+   "burst": 0.01,
+   "obstruct_win": [
+    [
+     "A2",
+     5,
+     30
+    ],
+    [
+     "A3",
+     30,
+     55
+    ],
+    [
+     "A6",
+     20,
+     40
+    ]
+   ],
+   "drift": [],
+   "dead_win": []
+  },
+  "hidden": true,
+  "noise_level": "mid"
+ },
+ "HT-hospital-s93001-h3": {
+  "site": "hospital",
+  "seed": 93001,
+  "steps": 600,
+  "dt": 0.1,
+  "speed": 1.0,
+  "offset": 5.0,
+  "n_waypoints": 37,
+  "cfg": {
+   "noise": "mid",
+   "sigma": 0.9,
+   "loss": 0.25,
+   "wallBias": 1.5,
+   "burst": 0.015,
+   "obstruct_win": [
+    [
+     "A4",
+     0,
+     60
+    ]
+   ],
+   "drift": [
+    "A1"
+   ],
+   "dead_win": []
+  },
+  "hidden": true,
+  "noise_level": "mid"
+ },
+ "HT-hospital-s93002-h3": {
+  "site": "hospital",
+  "seed": 93002,
+  "steps": 600,
+  "dt": 0.1,
+  "speed": 1.4,
+  "offset": 22.0,
+  "n_waypoints": 37,
+  "cfg": {
+   "noise": "mid",
+   "sigma": 0.9,
+   "loss": 0.25,
+   "wallBias": 1.5,
+   "burst": 0.015,
+   "obstruct_win": [
+    [
+     "A4",
+     0,
+     60
+    ]
+   ],
+   "drift": [
+    "A1"
+   ],
+   "dead_win": []
+  },
+  "hidden": true,
+  "noise_level": "mid"
+ },
+ "HT-hospital-s94001-h4": {
+  "site": "hospital",
+  "seed": 94001,
+  "steps": 600,
+  "dt": 0.1,
+  "speed": 1.0,
+  "offset": 16.0,
+  "n_waypoints": 37,
+  "cfg": {
+   "noise": "high",
+   "sigma": 1.4,
+   "loss": 0.3,
+   "wallBias": 2.6,
+   "burst": 0.02,
+   "obstruct_win": [
+    [
+     "A3",
+     20,
+     60
+    ],
+    [
+     "A5",
+     20,
+     60
+    ]
+   ],
+   "drift": [],
+   "dead_win": [
+    [
+     "A2",
+     10,
+     25
+    ]
+   ]
+  },
+  "hidden": true,
+  "noise_level": "high"
+ },
+ "HT-hospital-s94002-h4": {
+  "site": "hospital",
+  "seed": 94002,
+  "steps": 600,
+  "dt": 0.1,
+  "speed": 1.4,
+  "offset": 12.0,
+  "n_waypoints": 37,
+  "cfg": {
+   "noise": "high",
+   "sigma": 1.4,
+   "loss": 0.3,
+   "wallBias": 2.6,
+   "burst": 0.02,
+   "obstruct_win": [
+    [
+     "A3",
+     20,
+     60
+    ],
+    [
+     "A5",
+     20,
+     60
+    ]
+   ],
+   "drift": [],
+   "dead_win": [
+    [
+     "A2",
+     10,
+     25
+    ]
+   ]
+  },
+  "hidden": true,
+  "noise_level": "high"
+ },
+ "HT-hospital-s95001-h5": {
+  "site": "hospital",
+  "seed": 95001,
+  "steps": 600,
+  "dt": 0.1,
+  "speed": 1.0,
+  "offset": 26.0,
+  "n_waypoints": 37,
+  "cfg": {
+   "noise": "high",
+   "sigma": 1.2,
+   "loss": 0.15,
+   "wallBias": 3.4,
+   "burst": 0.012,
+   "obstruct_win": [
+    [
+     "A1",
+     0,
+     30
+    ],
+    [
+     "A6",
+     30,
+     60
+    ]
+   ],
+   "drift": [
+    "A4"
+   ],
+   "dead_win": []
+  },
+  "hidden": true,
+  "noise_level": "high"
+ },
+ "HT-hospital-s95002-h5": {
+  "site": "hospital",
+  "seed": 95002,
+  "steps": 600,
+  "dt": 0.1,
+  "speed": 1.4,
+  "offset": 19.0,
+  "n_waypoints": 37,
+  "cfg": {
+   "noise": "high",
+   "sigma": 1.2,
+   "loss": 0.15,
+   "wallBias": 3.4,
+   "burst": 0.012,
+   "obstruct_win": [
+    [
+     "A1",
+     0,
+     30
+    ],
+    [
+     "A6",
+     30,
+     60
+    ]
+   ],
+   "drift": [
+    "A4"
+   ],
+   "dead_win": []
+  },
+  "hidden": true,
+  "noise_level": "high"
+ },
+ "HT-warehouse-s90101-h0": {
+  "site": "warehouse",
+  "seed": 90101,
+  "steps": 600,
+  "dt": 0.1,
+  "speed": 1.0,
+  "offset": 8.0,
+  "n_waypoints": 23,
+  "cfg": {
+   "noise": "low",
+   "sigma": 0.4,
+   "loss": 0.05,
+   "wallBias": 1.2,
+   "burst": 0.002,
+   "obstruct_win": [
+    [
+     "A1",
+     15,
+     40
+    ],
+    [
+     "A4",
+     25,
+     50
+    ]
+   ],
+   "drift": [],
+   "dead_win": []
+  },
+  "hidden": true,
+  "noise_level": "low"
+ },
+ "HT-warehouse-s90102-h0": {
+  "site": "warehouse",
+  "seed": 90102,
+  "steps": 600,
+  "dt": 0.1,
+  "speed": 1.4,
+  "offset": 27.0,
+  "n_waypoints": 23,
+  "cfg": {
+   "noise": "low",
+   "sigma": 0.4,
+   "loss": 0.05,
+   "wallBias": 1.2,
+   "burst": 0.002,
+   "obstruct_win": [
+    [
+     "A1",
+     15,
+     40
+    ],
+    [
+     "A4",
+     25,
+     50
+    ]
+   ],
+   "drift": [],
+   "dead_win": []
+  },
+  "hidden": true,
+  "noise_level": "low"
+ },
+ "HT-warehouse-s91101-h1": {
+  "site": "warehouse",
+  "seed": 91101,
+  "steps": 600,
+  "dt": 0.1,
+  "speed": 1.0,
+  "offset": 15.0,
+  "n_waypoints": 23,
+  "cfg": {
+   "noise": "low",
+   "sigma": 0.6,
+   "loss": 0.2,
+   "wallBias": 2.8,
+   "burst": 0.006,
+   "obstruct_win": [
+    [
+     "A5",
+     10,
+     45
+    ]
+   ],
+   "drift": [],
+   "dead_win": [
+    [
+     "A6",
+     30,
+     60
+    ]
+   ]
+  },
+  "hidden": true,
+  "noise_level": "low"
+ },
+ "HT-warehouse-s91102-h1": {
+  "site": "warehouse",
+  "seed": 91102,
+  "steps": 600,
+  "dt": 0.1,
+  "speed": 1.4,
+  "offset": 21.0,
+  "n_waypoints": 23,
+  "cfg": {
+   "noise": "low",
+   "sigma": 0.6,
+   "loss": 0.2,
+   "wallBias": 2.8,
+   "burst": 0.006,
+   "obstruct_win": [
+    [
+     "A5",
+     10,
+     45
+    ]
+   ],
+   "drift": [],
+   "dead_win": [
+    [
+     "A6",
+     30,
+     60
+    ]
+   ]
+  },
+  "hidden": true,
+  "noise_level": "low"
+ },
+ "HT-warehouse-s92101-h2": {
+  "site": "warehouse",
+  "seed": 92101,
+  "steps": 600,
+  "dt": 0.1,
+  "speed": 1.0,
+  "offset": 8.0,
+  "n_waypoints": 23,
+  "cfg": {
+   "noise": "mid",
+   "sigma": 1.0,
+   "loss": 0.1,
+   "wallBias": 3.2,
+   "burst": 0.01,
+   "obstruct_win": [
+    [
+     "A2",
+     5,
+     30
+    ],
+    [
+     "A3",
+     30,
+     55
+    ],
+    [
+     "A6",
+     20,
+     40
+    ]
+   ],
+   "drift": [],
+   "dead_win": []
+  },
+  "hidden": true,
+  "noise_level": "mid"
+ },
+ "HT-warehouse-s92102-h2": {
+  "site": "warehouse",
+  "seed": 92102,
+  "steps": 600,
+  "dt": 0.1,
+  "speed": 1.4,
+  "offset": 15.0,
+  "n_waypoints": 23,
+  "cfg": {
+   "noise": "mid",
+   "sigma": 1.0,
+   "loss": 0.1,
+   "wallBias": 3.2,
+   "burst": 0.01,
+   "obstruct_win": [
+    [
+     "A2",
+     5,
+     30
+    ],
+    [
+     "A3",
+     30,
+     55
+    ],
+    [
+     "A6",
+     20,
+     40
+    ]
+   ],
+   "drift": [],
+   "dead_win": []
+  },
+  "hidden": true,
+  "noise_level": "mid"
+ },
+ "HT-warehouse-s93101-h3": {
+  "site": "warehouse",
+  "seed": 93101,
+  "steps": 600,
+  "dt": 0.1,
+  "speed": 1.0,
+  "offset": 27.0,
+  "n_waypoints": 23,
+  "cfg": {
+   "noise": "mid",
+   "sigma": 0.9,
+   "loss": 0.25,
+   "wallBias": 1.5,
+   "burst": 0.015,
+   "obstruct_win": [
+    [
+     "A4",
+     0,
+     60
+    ]
+   ],
+   "drift": [
+    "A1"
+   ],
+   "dead_win": []
+  },
+  "hidden": true,
+  "noise_level": "mid"
+ },
+ "HT-warehouse-s93102-h3": {
+  "site": "warehouse",
+  "seed": 93102,
+  "steps": 600,
+  "dt": 0.1,
+  "speed": 1.4,
+  "offset": 8.0,
+  "n_waypoints": 23,
+  "cfg": {
+   "noise": "mid",
+   "sigma": 0.9,
+   "loss": 0.25,
+   "wallBias": 1.5,
+   "burst": 0.015,
+   "obstruct_win": [
+    [
+     "A4",
+     0,
+     60
+    ]
+   ],
+   "drift": [
+    "A1"
+   ],
+   "dead_win": []
+  },
+  "hidden": true,
+  "noise_level": "mid"
+ },
+ "HT-warehouse-s94101-h4": {
+  "site": "warehouse",
+  "seed": 94101,
+  "steps": 600,
+  "dt": 0.1,
+  "speed": 1.0,
+  "offset": 29.0,
+  "n_waypoints": 23,
+  "cfg": {
+   "noise": "high",
+   "sigma": 1.4,
+   "loss": 0.3,
+   "wallBias": 2.6,
+   "burst": 0.02,
+   "obstruct_win": [
+    [
+     "A3",
+     20,
+     60
+    ],
+    [
+     "A5",
+     20,
+     60
+    ]
+   ],
+   "drift": [],
+   "dead_win": [
+    [
+     "A2",
+     10,
+     25
+    ]
+   ]
+  },
+  "hidden": true,
+  "noise_level": "high"
+ },
+ "HT-warehouse-s94102-h4": {
+  "site": "warehouse",
+  "seed": 94102,
+  "steps": 600,
+  "dt": 0.1,
+  "speed": 1.4,
+  "offset": 8.0,
+  "n_waypoints": 23,
+  "cfg": {
+   "noise": "high",
+   "sigma": 1.4,
+   "loss": 0.3,
+   "wallBias": 2.6,
+   "burst": 0.02,
+   "obstruct_win": [
+    [
+     "A3",
+     20,
+     60
+    ],
+    [
+     "A5",
+     20,
+     60
+    ]
+   ],
+   "drift": [],
+   "dead_win": [
+    [
+     "A2",
+     10,
+     25
+    ]
+   ]
+  },
+  "hidden": true,
+  "noise_level": "high"
+ },
+ "HT-warehouse-s95101-h5": {
+  "site": "warehouse",
+  "seed": 95101,
+  "steps": 600,
+  "dt": 0.1,
+  "speed": 1.0,
+  "offset": 11.0,
+  "n_waypoints": 23,
+  "cfg": {
+   "noise": "high",
+   "sigma": 1.2,
+   "loss": 0.15,
+   "wallBias": 3.4,
+   "burst": 0.012,
+   "obstruct_win": [
+    [
+     "A1",
+     0,
+     30
+    ],
+    [
+     "A6",
+     30,
+     60
+    ]
+   ],
+   "drift": [
+    "A4"
+   ],
+   "dead_win": []
+  },
+  "hidden": true,
+  "noise_level": "high"
+ },
+ "HT-warehouse-s95102-h5": {
+  "site": "warehouse",
+  "seed": 95102,
+  "steps": 600,
+  "dt": 0.1,
+  "speed": 1.4,
+  "offset": 7.0,
+  "n_waypoints": 23,
+  "cfg": {
+   "noise": "high",
+   "sigma": 1.2,
+   "loss": 0.15,
+   "wallBias": 3.4,
+   "burst": 0.012,
+   "obstruct_win": [
+    [
+     "A1",
+     0,
+     30
+    ],
+    [
+     "A6",
+     30,
+     60
+    ]
+   ],
+   "drift": [
+    "A4"
+   ],
+   "dead_win": []
+  },
+  "hidden": true,
+  "noise_level": "high"
+ }
+}

@@ -1,0 +1,24 @@
+--- 6 anchors, ALL hidden noise levels pooled ---
+method                median     p90     p95   <2m %  90% ell. cov %
+WLS                     5.36    9.86   11.53    10.2             nan
+Kalman(CV)              5.33   10.34   12.36    10.4             nan
+LOCUS (heuristic)       2.74    6.13    7.34    39.4            84.8
+LOCUS (ML trust)        2.81    6.68    7.78    38.3            84.1
+--- 4 anchors, ALL hidden noise levels pooled ---
+method                median     p90     p95   <2m %  90% ell. cov %
+WLS                     5.92   12.23   14.46     9.9             nan
+Kalman(CV)              6.04   13.27   16.04     9.7             nan
+LOCUS (heuristic)       3.05    7.80   10.76    36.0            85.6
+LOCUS (ML trust)        3.73   10.63   14.69    32.1            80.3
+--- 3 anchors, ALL hidden noise levels pooled ---
+method                median     p90     p95   <2m %  90% ell. cov %
+WLS                     6.97   14.03   15.85     9.7             nan
+Kalman(CV)              7.12   14.48   16.61     9.2             nan
+LOCUS (heuristic)       3.82   13.29   15.74    31.3            80.4
+LOCUS (ML trust)        3.80   13.31   15.88    33.4            81.9
+--- 2 anchors, ALL hidden noise levels pooled ---
+method                median     p90     p95   <2m %  90% ell. cov %
+WLS                     7.15   15.08   17.55     9.0             nan
+Kalman(CV)              7.33   15.42   17.99     8.8             nan
+LOCUS (heuristic)       3.90   11.92   15.05    30.9            86.7
+LOCUS (ML trust)        4.10   12.55   15.78    29.4            86.4

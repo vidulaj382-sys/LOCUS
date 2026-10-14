@@ -1,4 +1,5 @@
 /* ================= LOCUS UI ================= */
+var BE = window.BE || (window.BE = { on: false, push() { } });   /* optional backend link, filled in by backend.js; BE.on stays false without a backend */
 const $ = id => document.getElementById(id);
 const C = { aqua: '#22C3E6', aquaD: '#0E9DBE', aquaL: '#BFE9F3', em: '#10B981', emD: '#0B8A5E', ink: '#0B3A4A', amber: '#F5A524', coral: '#EF6A6A', slate: '#7C93C3' };
 const SC = 30; // px per metre on the 1200x720 canvases
@@ -36,6 +37,7 @@ function resetSim() {
   loc = new Locus(anchors, { N: 600, sigma: cfg.sigma, rng: rngMake(11), inflate: 2.0 }); buildAnchorList();
 }
 function simStep() {
+  if (BE.on) return;   /* a live backend session drives the frames instead */
   const dt = 0.1, t = walker.step(dt).slice(); loc.sigma = cfg.sigma;
   const m = measure(t, anchors, cfg, rng), ls = lsFix(anchors, m, lastLs); if (ls) lastLs = ls;
   const kp = kf.update(ls, dt), out = loc.step(m, dt); simT += dt;
@@ -107,12 +109,12 @@ function updatePanels() {
   /* rooms */
   const rs = Object.entries(out.rooms).sort((a, b) => b[1] - a[1]), top = rs[0];
   $('b-room').firstChild.textContent = roomName(top[0]) + ' · ' + pct(top[1]) + '%';
-  const err = Math.hypot(out.pos[0] - t[0], out.pos[1] - t[1]);
-  $('b-room2').textContent = 'True room: ' + roomName(roomAt(t[0], t[1])) + (roomAt(t[0], t[1]) === top[0] ? ' ✓ match' : ' (filter still converging)');
+  const err = Math.hypot(out.pos[0] - t[0], out.pos[1] - t[1]), noT = !!frame.noTruth;   /* noT: live BLE readings, no ground truth */
+  $('b-room2').textContent = noT ? 'Live readings: no ground truth available' : 'True room: ' + roomName(roomAt(t[0], t[1])) + (roomAt(t[0], t[1]) === top[0] ? ' ✓ match' : ' (filter still converging)');
   $('rooms').innerHTML = rs.slice(0, 4).map(([id, p]) => `<div class="r"><span>${roomName(id)}</span><div class="bar"><i style="width:${pct(p)}%;background:${C.em}"></i></div><em>${pct(p)}%</em></div>`).join('');
   /* kpis */
   const lsE = frame.ls ? Math.hypot(frame.ls[0] - t[0], frame.ls[1] - t[1]) : null;
-  $('k-err').innerHTML = err.toFixed(1) + '<i>m</i>'; $('k-err2').textContent = 'vs trilateration ' + (lsE == null ? '–' : lsE.toFixed(1) + ' m');
+  $('k-err').innerHTML = noT ? '–' : err.toFixed(1) + '<i>m</i>'; $('k-err2').textContent = noT ? 'no ground truth for live readings' : 'vs trilateration ' + (lsE == null ? '–' : lsE.toFixed(1) + ' m');
   $('k-ell').innerHTML = out.ell.a.toFixed(1) + '<i>m</i>';
   const usable = anchors.filter((a, i) => out.usable[i] && !cfg.dead.has(a.id)).length; $('k-anc').innerHTML = usable + '<i>/ ' + anchors.length + '</i>';
   $('k-anc2').textContent = cfg.dead.size ? cfg.dead.size + ' offline · degrading gracefully' : 'receiving this cycle';
@@ -142,23 +144,23 @@ function renderChart() {
 
 /* ---------- controls ---------- */
 function bindRange(id, outId, fmt, set) { const el = $(id); const f = () => { set(+el.value); $(outId).textContent = fmt(+el.value); }; el.addEventListener('input', f); f(); return el; }
-bindRange('s-sigma', 'o-sigma', v => v.toFixed(1) + ' m', v => cfg.sigma = v);
-bindRange('s-loss', 'o-loss', v => v + '%', v => cfg.loss = v / 100);
-bindRange('s-wall', 'o-wall', v => v.toFixed(1) + ' m/wall', v => cfg.wallBias = v);
-bindRange('s-n', 'o-n', v => v, v => { if (v !== nAnch) { nAnch = v; if (anchors) resetSim(); syncScen(); } });
+bindRange('s-sigma', 'o-sigma', v => v.toFixed(1) + ' m', v => { cfg.sigma = v; BE.push(); });
+bindRange('s-loss', 'o-loss', v => v + '%', v => { cfg.loss = v / 100; BE.push(); });
+bindRange('s-wall', 'o-wall', v => v.toFixed(1) + ' m/wall', v => { cfg.wallBias = v; BE.push(); });
+bindRange('s-n', 'o-n', v => v, v => { if (v !== nAnch) { nAnch = v; if (anchors) resetSim(); syncScen(); BE.push(); } });
 function toggleSet(set, id) { set.has(id) ? set.delete(id) : set.add(id); }
 function ensure(id) { const idx = DROP_ORDER.findIndex(i => ANCHORS[i].id === id); if (idx >= nAnch) { nAnch = 6; $('s-n').value = 6; $('o-n').textContent = 6; resetSim(); } }
-function toggleDead(id) { toggleSet(cfg.dead, id); syncScen(); notifyApp(); }
+function toggleDead(id) { toggleSet(cfg.dead, id); syncScen(); notifyApp(); BE.push(); }
 function syncScen() {
   $('sc-body').setAttribute('aria-pressed', cfg.obstruct.has('A3')); $('sc-drift').setAttribute('aria-pressed', cfg.drift.has('A2')); $('sc-kill').setAttribute('aria-pressed', cfg.dead.has('A3'));
   $('sc-kill').textContent = cfg.dead.has('A3') ? 'Revive A3' : 'Kill A3';
 }
-$('sc-body').onclick = () => { ensure('A3'); toggleSet(cfg.obstruct, 'A3'); syncScen(); };
-$('sc-drift').onclick = () => { ensure('A2'); toggleSet(cfg.drift, 'A2'); syncScen(); };
+$('sc-body').onclick = () => { ensure('A3'); toggleSet(cfg.obstruct, 'A3'); syncScen(); BE.push(); };
+$('sc-drift').onclick = () => { ensure('A2'); toggleSet(cfg.drift, 'A2'); syncScen(); BE.push(); };
 $('sc-kill').onclick = () => { ensure('A3'); toggleDead('A3'); };
 function setSl(id, v, o, fmt) { $(id).value = v; $(id).dispatchEvent(new Event('input')); }
-$('sc-storm').onclick = () => { nAnch = 6; setSl('s-n', 6); resetSim(); setSl('s-sigma', 1.2); setSl('s-loss', 40); setSl('s-wall', 2.4); cfg.obstruct = new Set(['A3']); cfg.drift = new Set(['A2']); cfg.dead = new Set(['A5']); syncScen(); notifyApp(); };
-$('sc-reset').onclick = () => { setSl('s-sigma', DEF.sigma); setSl('s-loss', 10); setSl('s-wall', DEF.wallBias); setSl('s-n', 6); cfg.dead.clear(); cfg.obstruct.clear(); cfg.drift.clear(); resetSim(); syncScen(); notifyApp(); };
+$('sc-storm').onclick = () => { nAnch = 6; setSl('s-n', 6); resetSim(); setSl('s-sigma', 1.2); setSl('s-loss', 40); setSl('s-wall', 2.4); cfg.obstruct = new Set(['A3']); cfg.drift = new Set(['A2']); cfg.dead = new Set(['A5']); syncScen(); notifyApp(); BE.push(); };
+$('sc-reset').onclick = () => { setSl('s-sigma', DEF.sigma); setSl('s-loss', 10); setSl('s-wall', DEF.wallBias); setSl('s-n', 6); cfg.dead.clear(); cfg.obstruct.clear(); cfg.drift.clear(); resetSim(); syncScen(); notifyApp(); BE.push(); };
 [['c-cloud', 'cloud'], ['c-base', 'base'], ['c-links', 'links']].forEach(([id, k]) => $(id).onclick = e => { show[k] = !show[k]; e.currentTarget.setAttribute('aria-pressed', show[k]); });
 mapC.addEventListener('click', e => { const r = mapC.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * FLOOR.w, y = (e.clientY - r.top) / r.height * FLOOR.h; const a = anchors.find(a => Math.hypot(a.x - x, a.y - y) < 1.1); if (a) toggleDead(a.id); });
 mapC.addEventListener('mousemove', e => { const r = mapC.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * FLOOR.w, y = (e.clientY - r.top) / r.height * FLOOR.h; mapC.style.cursor = anchors.some(a => Math.hypot(a.x - x, a.y - y) < 1.1) ? 'pointer' : 'default'; });

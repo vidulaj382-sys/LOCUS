@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>LOCUS Staff App</title>
+<link rel="manifest" href="manifest-staff.json">
+<meta name="theme-color" content="#22C3E6">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="LOCUS Staff">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -283,6 +291,7 @@ class Locus {
 if (typeof module !== 'undefined') module.exports = { get ROOMS() { return ROOMS; }, get WALLS() { return WALLS; }, get ANCHORS() { return ANCHORS; }, get DROP_ORDER() { return DROP_ORDER; }, get WAYPOINTS() { return WAYPOINTS; }, FLOOR, setSite, roomAt, roomName, wallsBetween, crossesWall, rngMake, Walker, measure, lsFix, KalmanCV, Locus };
 
 /* ================= LOCUS UI ================= */
+var BE = window.BE || (window.BE = { on: false, push() { } });   /* optional backend link, filled in by backend.js; BE.on stays false without a backend */
 const $ = id => document.getElementById(id);
 const C = { aqua: '#22C3E6', aquaD: '#0E9DBE', aquaL: '#BFE9F3', em: '#10B981', emD: '#0B8A5E', ink: '#0B3A4A', amber: '#F5A524', coral: '#EF6A6A', slate: '#7C93C3' };
 const SC = 30; // px per metre on the 1200x720 canvases
@@ -312,7 +321,7 @@ function drawEllipse(ctx, e, cx, cy, s, fill, stroke) {
 const cfg = { sigma: 0.6, loss: 0.10, wallBias: 1.8, burst: 0.004, obstructBias: 4, driftBias: 2.5, dead: new Set(), obstruct: new Set(), drift: new Set() };
 let anchors, walker, rng, loc, frame = { out: null, truth: [3, 12] }, acc = 0, tPrev = 0, deadSeen = 0;
 function resetSim() { anchors = DROP_ORDER.slice(0, 6).map(i => ANCHORS[i]); rng = rngMake(5); walker = new Walker(1.2, 6); loc = new Locus(anchors, { N: 400, sigma: cfg.sigma, rng: rngMake(11), inflate: 2.0 }); frame = { out: null, truth: [3, 12] }; }
-function simStep() { const t = walker.step(0.1).slice(), m = measure(t, anchors, cfg, rng); frame = { truth: t, out: loc.step(m, 0.1) }; }
+function simStep() { if (BE.on) return; const t = walker.step(0.1).slice(), m = measure(t, anchors, cfg, rng); frame = { truth: t, out: loc.step(m, 0.1) }; }
 
 const STAFF = {
   hospital: { tag: 'Level 2', head: 'Find equipment fast', ph: 'Search pump, wheelchair, ECG', cats: ['All', 'Pumps', 'Wheelchairs', 'ECG', 'Oxygen'], me: [2.5, 12],
@@ -349,10 +358,10 @@ const confCls = c => 'pill ' + (c >= 85 ? 'g' : c >= 60 ? 'a' : 'r');
 
 /* ---------- views ---------- */
 function setView(v) {
-  view = v; ['find', 'map', 'alerts'].forEach(k => { $('v-' + k).hidden = k !== v; });
+  view = v; ['find', 'map', 'alerts', 'ble'].forEach(k => { const e = $('v-' + k); if (e) e.hidden = k !== v; });
   document.querySelectorAll('.tabbar button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
-  $('s-h').textContent = v === 'find' ? STAFF[SITE_ID].head : v === 'map' ? 'Live floor map' : 'System health';
-  $('sq').hidden = v !== 'find'; $('schips').hidden = v === 'alerts';
+  $('s-h').textContent = v === 'find' ? STAFF[SITE_ID].head : v === 'map' ? 'Live floor map' : v === 'ble' ? 'Live BLE scan' : 'System health';
+  $('sq').hidden = v !== 'find'; $('schips').hidden = v === 'alerts' || v === 'ble';
   if (v === 'alerts') { deadSeen = cfg.dead.size; $('badge').hidden = true; } renderAll();
 }
 function renderChips() { const b = $('schips'); b.innerHTML = STAFF[SITE_ID].cats.map(c => `<button class="chip" aria-pressed="${c === cat}">${c}</button>`).join(''); b.querySelectorAll('button').forEach(x => x.onclick = () => { cat = x.textContent; renderChips(); renderAll(); }); }
@@ -386,6 +395,8 @@ function updateLive() {
   } else if (view === 'map') {
     drawMini($('fmap'), null, true); const it = ITEMS.find(i => i.id === selId), inf = itemInfo(it);
     $('msel').innerHTML = `<div class="row"><div><b>${it.name}</b><small>${inf.zone} · about ${Math.round(rlen(route(inf.pos)))} m from you</small></div><span class="${confCls(inf.conf)}">${inf.conf}% sure</span></div>`;
+  } else if (view === 'ble') {
+    if (typeof BLE !== 'undefined') BLE.render();
   } else {
     const o = frame.out, online = anchors.length - cfg.dead.size;
     $('hsum').innerHTML = `<b>${online} of ${anchors.length} anchors online</b><small>${cfg.dead.size ? 'Accuracy reduced near offline anchors. Maintenance notified.' : 'All anchors healthy.'}</small>`;
@@ -401,12 +412,12 @@ let toastT;
 function onDeadChange() {
   const d = [...cfg.dead], t = $('toast');
   if (d.length) { t.innerHTML = `<b>Anchor ${d.join(', ')} offline</b><br>Accuracy reduced nearby. Maintenance notified.`; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 5000); } else t.classList.remove('on');
-  if (view !== 'alerts' && d.length > deadSeen) { $('badge').hidden = false; $('badge').textContent = d.length - deadSeen; } updateLive();
+  if (view !== 'alerts' && d.length > deadSeen) { $('badge').hidden = false; $('badge').textContent = d.length - deadSeen; } updateLive(); BE.push();
 }
 function renderAll() { if (view === 'find') renderList(); else updateLive(); }
 function switchSite(id) {
   setSite(id); const S = STAFF[id]; ITEMS = S.items; ME = S.me; selId = ITEMS[0].id; cat = 'All'; query = ''; $('q').value = ''; $('q').placeholder = S.ph; $('tagbtn').firstChild.textContent = S.tag + ' ';
-  $('tagbtn').dataset.site = id; cfg.dead.clear(); deadSeen = 0; $('badge').hidden = true; resetSim(); buildHealth(); renderChips(); setView(view); $('toast').classList.remove('on');
+  $('tagbtn').dataset.site = id; cfg.dead.clear(); deadSeen = 0; $('badge').hidden = true; resetSim(); buildHealth(); renderChips(); setView(view); $('toast').classList.remove('on'); BE.push(); if (BE.on && BE.hooks.assets) BE.hooks.assets();
 }
 
 /* ---------- wiring ---------- */
@@ -424,6 +435,199 @@ function loop(now) {
 requestAnimationFrame(loop);
 if (location.hash === '#wh') switchSite('warehouse');
 if (['map', 'alerts'].includes(location.hash.slice(1))) setView(location.hash.slice(1));
+
+/* ================= OPTIONAL BACKEND LINK =================
+   Tries to reach the LOCUS backend (python -m backend) over WebSocket on page load. If no backend answers within 1.5 s the page
+   keeps running the in-browser simulation exactly as before - silently, nothing is shown except the "Offline simulation" badge.
+   Where to look:  ?backend=host:port  >  the origin that served this page  >  localhost:8000.            */
+Object.assign(BE, {
+  ws: null, base: '', state: null, applying: false, hooks: {}, ind: null,
+  setInd(live) {
+    if (!BE.ind) {
+      BE.ind = document.createElement('span'); BE.ind.id = 'be-ind'; BE.ind.setAttribute('role', 'status');
+      BE.ind.style.cssText = 'display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;font:700 12px Figtree,system-ui,sans-serif;white-space:nowrap;border:1.5px solid';
+      (document.querySelector('.hrow') ? document.querySelector('.hrow').insertBefore(BE.ind, document.querySelector('.live')) : document.querySelector('.brand') && document.querySelector('.brand').insertBefore(BE.ind, document.getElementById('tagbtn')));
+    }
+    BE.ind.innerHTML = '<i style="width:8px;height:8px;border-radius:50%;display:inline-block;background:' + (live ? '#10B981' : '#9BB3BD') + '"></i>' + (live ? 'Live backend' : 'Offline simulation');
+    BE.ind.style.color = live ? '#0A6B49' : '#587783'; BE.ind.style.background = live ? '#DDF6EA' : '#F1F6F8'; BE.ind.style.borderColor = live ? '#10B981' : '#D5E3E8';
+    BE.ind.title = live ? 'Driven by the shared backend session at ' + BE.base : 'No backend reachable: running the pure in-browser simulation';
+  },
+  send(o) { if (BE.ws && BE.ws.readyState === 1) BE.ws.send(JSON.stringify(o)); },
+  /* push local control state (set by the page via hooks.collect) to the shared session */
+  push() { if (BE.on && !BE.applying && BE.hooks.collect) BE.send(Object.assign({ type: 'control' }, BE.hooks.collect())); },
+  api(path, opt) { return fetch(BE.base + path, opt).then(r => { if (!r.ok) throw new Error(r.status); return r.headers.get('content-type').includes('json') ? r.json() : r.text(); }); },
+  start() {
+    BE.setInd(false);
+    const q = new URLSearchParams(location.search).get('backend'), http = location.protocol.startsWith('http'), c = [];
+    if (q) c.push(q); if (http && !/github\.io$/.test(location.hostname)) c.push(location.host); c.push('localhost:8000');
+    const cands = c.filter((x, i) => c.indexOf(x) === i), socks = []; let settled = false;
+    const done = () => { settled = true; socks.forEach(s => { if (s !== BE.ws) try { s.close(); } catch (e) { } }); };
+    setTimeout(() => { if (!settled) done(); }, 1500);
+    cands.forEach(host => {
+      let ws; const local = /^(localhost|127\.|\[::1\])/.test(host), sec = location.protocol === 'https:' && (!local || host === location.host);
+      try { ws = new WebSocket((sec ? 'wss://' : 'ws://') + host + '/ws'); } catch (e) { return; }
+      socks.push(ws);
+      ws.onmessage = ev => {
+        let m; try { m = JSON.parse(ev.data); } catch (e) { return; }
+        if (!BE.ws) {
+          if (settled || m.type !== 'hello') return;
+          BE.ws = ws; BE.base = (sec ? 'https://' : 'http://') + host; BE.on = true; done(); BE.setInd(true);
+          if (BE.hooks.hello) BE.hooks.hello(m); return;
+        }
+        if (ws !== BE.ws) return;
+        if (m.type === 'frame') { if (BE.hooks.frame) BE.hooks.frame(m); }
+        else if (m.type === 'state') { BE.state = m.state; if (BE.hooks.state) BE.hooks.state(m.state); }
+        else if (m.type === 'hello') { BE.state = m.state; if (BE.hooks.state) BE.hooks.state(m.state); }
+      };
+      ws.onclose = ws.onerror = () => { if (ws === BE.ws && BE.on) { BE.on = false; BE.ws = null; BE.setInd(false); if (BE.hooks.offline) BE.hooks.offline(); } };
+    });
+  },
+});
+/* ===== PWA: register the service worker (needs https:// or localhost; silently skipped on file:// and plain-http LAN addresses) ===== */
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => { }));
+}
+/* ===== staff app <-> backend wiring (only active when BE.on; otherwise nothing here runs) ===== */
+(function () {
+  let lastCtl = '', lastIds = '';
+  BE.hooks.collect = () => ({ site: SITE_ID, dead: [...cfg.dead] });
+
+  /* equipment list from the backend; the hard-coded STAFF table stays as the offline fallback */
+  function loadAssets() {
+    BE.api('/api/assets?site=' + SITE_ID).then(d => {
+      if (!d || !d.items || !d.items.length) return;
+      STAFF[SITE_ID] = { tag: d.lvl, head: d.head, ph: d.ph, cats: d.cats, me: d.me, items: d.items };
+      const S = STAFF[SITE_ID]; ITEMS = S.items; ME = S.me; if (!ITEMS.some(i => i.id === selId)) selId = ITEMS[0].id;
+      $('q').placeholder = S.ph; $('tagbtn').firstChild.textContent = S.tag + ' '; renderChips(); setView(view);
+    }).catch(() => { });
+  }
+  BE.hooks.assets = loadAssets;
+
+  function sync(st) {
+    BE.applying = true;
+    try {
+      if (st.site !== SITE_ID && (st.site === 'hospital' || st.site === 'warehouse')) switchSite(st.site);
+      cfg.dead = new Set(st.dead); lastCtl = st.dead + '';
+      onDeadChange();
+    } finally { BE.applying = false; }
+  }
+  BE.hooks.state = st => sync(st);
+
+  BE.hooks.frame = f => {
+    if (f.site !== SITE_ID) { BE.applying = true; try { switchSite(f.site); } finally { BE.applying = false; } lastIds = ''; }
+    const ids = f.anchors.map(a => a.id).join(',');
+    if (ids && ids !== lastIds) { lastIds = ids; anchors = f.anchors.map(a => ({ id: a.id, x: a.x, y: a.y })); buildHealth(); }
+    if (f.ctl.dead + '' !== lastCtl) { lastCtl = f.ctl.dead + ''; BE.applying = true; try { cfg.dead = new Set(f.ctl.dead); onDeadChange(); } finally { BE.applying = false; } }
+    if (!f.est) return;
+    frame = { truth: f.truth || f.est, out: { pos: f.est, ell: f.ell, rooms: f.rooms, trust: f.anchors.map(a => a.trust), reasons: f.anchors.map(a => a.reason), usable: f.anchors.map(a => a.usable) } };
+    updateLive();
+  };
+  BE.hooks.offline = () => { resetSim(); buildHealth(); lastIds = ''; };
+  BE.hooks.hello = m => { BE.state = m.state; lastIds = ''; sync(m.state); loadAssets(); };
+  BE.start();
+})();
+/* ===== Live BLE tab (staff app) - OPTIONAL, OFF BY DEFAULT =====
+   Passively collects BLE advertisement RSSI with Web Bluetooth and forwards readings of PAIRED devices to the backend
+   (POST /api/ingest), which feeds the same engine pipeline the simulator feeds. Nothing here runs until the user flips the switch.
+   Web Bluetooth facts the UI is honest about: Chrome on Android / desktop only (never iOS/Safari); needs https or localhost;
+   requestLEScan() (continuous scan of many beacons) is behind chrome://flags/#enable-experimental-web-platform-features;
+   browsers hide the Bluetooth MAC, so a device is identified by its per-origin device.id + advertised name.
+   No real anchors exist yet: this is untested against real beacons.                                                          */
+const BLE = (function () {
+  const LS = 'locus.ble.pairs';
+  let pairs = {}; try { pairs = JSON.parse(localStorage.getItem(LS) || '{}'); } catch (e) { }
+  const seen = {}, last = {}, choice = {}; let enabled = false, scanning = false, scanObj = null, single = null, sent = 0, queue = {}, flushT = null, mode = '', msgExtra = '';
+
+  function support() {
+    const ua = navigator.userAgent || '';
+    if (!navigator.bluetooth) return { ok: false, msg: /iPhone|iPad|iPod/.test(ua) ? 'Live BLE needs Chrome on Android (or desktop Chrome): iPhone/iPad browsers cannot do Web Bluetooth.' : 'Live BLE needs Chrome on Android (or desktop Chrome); this browser has no Web Bluetooth.' };
+    if (!window.isSecureContext) return { ok: false, msg: 'Web Bluetooth needs https:// or localhost: open the app via “python -m backend --https” (see SETUP.md).' };
+    if (typeof navigator.bluetooth.requestLEScan !== 'function') return { ok: true, scan: false, msg: 'Continuous scanning is off: enable chrome://flags/#enable-experimental-web-platform-features, relaunch Chrome, or use “Pick one device” below.' };
+    return { ok: true, scan: true, msg: 'Ready. Continuous scan available.' };
+  }
+
+  function onAdv(ev) {
+    const d = ev.device || {}, id = d.id || ev.deviceId; if (!id) return;
+    const s = seen[id] || (seen[id] = { id, name: '', rssi: null, n: 0, t: 0 });
+    s.name = d.name || ev.name || s.name; s.rssi = ev.rssi; s.n++; s.t = Date.now();
+    const p = pairs[id]; if (enabled && p && typeof ev.rssi === 'number') { queue[p.anchor] = { anchor_id: p.anchor, rssi: ev.rssi, timestamp: Date.now() / 1000 }; last[p.anchor] = { rssi: ev.rssi, t: Date.now() }; }
+  }
+  function flush() {
+    const items = Object.values(queue); queue = {}; if (!items.length) return;
+    if (!BE.on) { mode = 'local'; return; }
+    BE.api('/api/ingest', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ readings: items }) }).then(() => { sent += items.length; mode = 'live'; }).catch(() => { mode = 'error'; });
+  }
+
+  async function startScan() {
+    msgExtra = '';
+    try {
+      scanObj = await navigator.bluetooth.requestLEScan({ acceptAllAdvertisements: true, keepRepeatedDevices: true });
+      navigator.bluetooth.addEventListener('advertisementreceived', onAdv); scanning = true;
+    } catch (e) { msgExtra = 'Scan could not start: ' + (e && e.message || e); }
+    render();
+  }
+  async function pickOne() {
+    msgExtra = '';
+    try {
+      const dev = await navigator.bluetooth.requestDevice({ acceptAllDevices: true });
+      if (typeof dev.watchAdvertisements !== 'function') { msgExtra = 'This Chrome cannot watch a single device’s advertisements, so no RSSI is available (needs a newer Chrome or the flag above).'; render(); return; }
+      dev.addEventListener('advertisementreceived', onAdv); await dev.watchAdvertisements(); single = dev; scanning = true;
+      seen[dev.id] = seen[dev.id] || { id: dev.id, name: dev.name || '', rssi: null, n: 0, t: 0 };
+    } catch (e) { if (!(e && e.name === 'NotFoundError')) msgExtra = 'Could not watch device: ' + (e && e.message || e); }
+    render();
+  }
+  function stopAll() {
+    try { if (scanObj && scanObj.active) scanObj.stop(); } catch (e) { }
+    try { navigator.bluetooth && navigator.bluetooth.removeEventListener('advertisementreceived', onAdv); } catch (e) { }
+    try { if (single) { single.removeEventListener('advertisementreceived', onAdv); single.unwatchAdvertisements && single.unwatchAdvertisements(); } } catch (e) { }
+    scanObj = single = null; scanning = false; queue = {};
+  }
+  function setEnabled(on) {
+    enabled = on; if (!on) { stopAll(); clearInterval(flushT); flushT = null; } else if (!flushT) flushT = setInterval(flush, 100);
+    render();
+  }
+  const save = () => localStorage.setItem(LS, JSON.stringify(pairs));
+  const ago = t => t ? Math.max(0, (Date.now() - t) / 1000).toFixed(1) + ' s ago' : '–';
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  let root;
+  function build() {
+    const body = document.createElement('div'); body.className = 'body'; body.id = 'v-ble'; body.hidden = true;
+    body.innerHTML = `<style>#v-ble .sw{display:flex;align-items:center;justify-content:space-between;gap:12px}#v-ble .tg{width:52px;height:30px;border-radius:99px;background:#CFE1E7;position:relative;flex:none}#v-ble .tg::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 4px rgba(0,0,0,.25)}#v-ble .tg[aria-pressed=true]{background:var(--em)}#v-ble .tg[aria-pressed=true]::after{left:25px}#v-ble .msg{font-size:13px;line-height:1.4;color:var(--ink2)}#v-ble .msg.warn{color:#8A5A00}#v-ble .btns{display:flex;gap:8px;flex-wrap:wrap}#v-ble .btns button{height:42px;padding:0 14px;border-radius:999px;border:1.5px solid var(--aqua-l);background:#fff;font-weight:700;font-size:13px}#v-ble .btns button:disabled{opacity:.4}#v-ble .btns button.pri{background:var(--em-d);border-color:var(--em-d);color:#fff}#v-ble select{height:38px;border-radius:12px;border:1.5px solid var(--aqua-l);padding:0 8px;font:600 13px Figtree;background:#fff;max-width:100px}#v-ble .dev{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--line)}#v-ble .dev:first-child{border-top:0}#v-ble small{display:block;color:var(--ink3);font-size:12px;word-break:break-all}</style>
+      <div class="panel"><div class="sw"><div><b>Use real BLE readings</b><small>Off by default. No real anchors yet: this is ready for when beacons exist.</small></div><button class="tg" id="ble-sw" aria-pressed="false" aria-label="Use real BLE readings"></button></div><p class="msg" id="ble-msg" style="margin-top:10px"></p></div>
+      <div class="panel" id="ble-ctl"><div class="btns"><button class="pri" id="ble-scan">Start scan</button><button id="ble-one">Pick one device</button><button id="ble-stop">Stop</button></div><p class="msg" id="ble-stat" style="margin-top:10px"></p></div>
+      <div class="panel"><b>Nearby devices</b><div id="ble-devs" style="margin-top:6px"></div></div>
+      <div class="panel"><b>Paired anchors</b><div id="ble-pairs" style="margin-top:6px"></div><p class="msg" style="margin-top:8px">Browsers hide the Bluetooth MAC address, so a beacon is identified by the browser’s device id for this site plus its advertised name.</p></div>`;
+    document.querySelector('.tabbar').before(body);
+    const tab = document.createElement('button'); tab.dataset.v = 'ble';
+    tab.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7l10 10-5 5V2l5 5L7 17"/></svg>BLE';
+    tab.onclick = () => setView('ble'); document.querySelector('.tabbar').appendChild(tab);
+    root = body;
+    $('ble-sw').onclick = () => setEnabled(!enabled);
+    $('ble-scan').onclick = startScan; $('ble-one').onclick = pickOne; $('ble-stop').onclick = () => { stopAll(); render(); };
+  }
+
+  function render() {
+    if (!root || root.hidden) return;
+    const sp = support();
+    $('ble-sw').setAttribute('aria-pressed', enabled); $('ble-sw').disabled = !sp.ok && !enabled && false;
+    const m = $('ble-msg'); m.textContent = sp.msg + (msgExtra ? ' ' + msgExtra : ''); m.className = 'msg' + (sp.ok && sp.scan ? '' : ' warn');
+    $('ble-scan').disabled = !(enabled && sp.ok && sp.scan && !scanning); $('ble-one').disabled = !(enabled && sp.ok && !scanning); $('ble-stop').disabled = !scanning;
+    const fwd = !enabled ? 'Off: nothing is scanned or sent.' : !BE.on ? 'Backend not connected: readings stay on this phone and are not used by the engine.' : sent ? 'Forwarded ' + sent + ' readings to the backend' + (BE.lastMode === 'live' ? ' · engine is using LIVE readings' : '') + '.' : 'Backend connected. Pair a device to start forwarding.';
+    $('ble-stat').textContent = (scanning ? 'Scanning… ' : '') + fwd;
+    const devs = Object.values(seen).sort((a, b) => (a.name + a.id < b.name + b.id ? -1 : 1)).slice(0, 12);
+    $('ble-devs').innerHTML = devs.length ? devs.map(d => `<div class="dev" data-id="${esc(d.id)}"><div><b style="font-size:14px">${esc(d.name || '(no name)')}</b><small>${esc(d.id.slice(0, 18))} · ${d.rssi == null ? '–' : d.rssi + ' dBm'} · ${ago(d.t)}</small></div><div style="display:flex;gap:6px"><select aria-label="Anchor">${anchors.map(a => `<option value="${a.id}"${(choice[d.id] || (pairs[d.id] || {}).anchor) === a.id ? ' selected' : ''}>${a.id}</option>`).join('')}</select><button class="pr" style="height:38px;padding:0 12px;border-radius:12px;background:var(--em-d);color:#fff;font-weight:700;font-size:13px">Pair</button></div></div>`).join('') : '<p class="empty" style="padding:14px 0">No devices yet. Start a scan.</p>';
+    $('ble-devs').querySelectorAll('.dev').forEach(el => { el.querySelector('select').onchange = e => { choice[el.dataset.id] = e.target.value; }; el.querySelector('.pr').onclick = () => { const id = el.dataset.id; pairs[id] = { anchor: el.querySelector('select').value, name: (seen[id] || {}).name || '' }; save(); render(); }; });
+    const pk = Object.entries(pairs);
+    $('ble-pairs').innerHTML = pk.length ? pk.map(([id, p]) => `<div class="dev" data-id="${esc(id)}"><div><b style="font-size:14px">${esc(p.anchor)} ← ${esc(p.name || '(no name)')}</b><small>${esc(id.slice(0, 18))} · ${last[p.anchor] ? last[p.anchor].rssi + ' dBm · ' + ago(last[p.anchor].t) : 'no reading yet'}</small></div><button class="up" style="height:38px;padding:0 12px;border-radius:12px;border:1.5px solid var(--aqua-l);font-weight:700;font-size:13px">Unpair</button></div>`).join('') : '<p class="empty" style="padding:14px 0">Nothing paired.</p>';
+    $('ble-pairs').querySelectorAll('.dev').forEach(el => { el.querySelector('.up').onclick = () => { delete pairs[el.dataset.id]; save(); render(); }; });
+  }
+
+  build();
+  const pf = BE.hooks.frame; BE.hooks.frame = f => { BE.lastMode = f.mode; pf && pf(f); };
+  setInterval(() => { if (root && !root.hidden) render(); }, 700);
+  return { render, setEnabled, onAdv, _state: () => ({ enabled, pairs, sent }) };
+})();
 
 </script>
 </body>
