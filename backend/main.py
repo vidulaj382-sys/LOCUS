@@ -307,13 +307,20 @@ def ingest(d: dict = Body(...)):
     n = 0
     for r in items:
         try:
-            S.ingest(r['anchor_id'], rssi=r.get('rssi'), range_m=r.get('range_m'))
+            S.ingest(r['anchor_id'], rssi=r.get('rssi'), range_m=r.get('range_m'), rssi_at_1m=r.get('rssi_at_1m', d.get('rssi_at_1m', -40.0)), n=r.get('n', d.get('n', 2.2)))
             n += 1
         except KeyError as e:
             raise HTTPException(404, f'unknown anchor {e}')
         except (TypeError, ValueError):
             raise HTTPException(422, 'need numeric rssi or range_m')
-    return dict(accepted=n, mode='live', range_m=rssi_to_range(items[-1]['rssi']) if 'rssi' in items[-1] else items[-1].get('range_m'))
+    return dict(accepted=n, mode='live', range_m=S.live[items[-1]['anchor_id']][0])
+
+
+@app.get('/api/ingest/status')
+def ingest_status():
+    now = time.time()
+    return dict(mode=S.mode(), total=getattr(S, 'ingested', 0),
+                anchors={k: dict(range_m=round(v[0], 2), rssi=v[3], age_s=round(now - v[1], 2)) for k, v in S.live.items()})
 
 
 # ------------------------------------------------------------------ sessions: record / replay / export

@@ -8,10 +8,10 @@ DEF = dict(sigma=0.6, loss=0.10, wallBias=1.8, burst=0.004, obstructBias=4.0, dr
 LIVE_TIMEOUT = 2.0          # seconds without ingested readings before we fall back to the simulator
 
 
-def rssi_to_range(rssi):
-    """Inverse of the dataset's log-distance model  RSSI = -40 - 22*log10(range)  (same constants as scripts/generate_dataset.py).
-    Uncalibrated: real beacons will need their own path-loss constants."""
-    return float(10 ** ((-40.0 - rssi) / 22.0))
+def rssi_to_range(rssi, rssi_at_1m=-40.0, n=2.2):
+    """Inverse of the log-distance model  RSSI = rssi_at_1m - 10*n*log10(range). Defaults are the dataset's constants
+    (scripts/generate_dataset.py); real beacons need their own measured rssi_at_1m / path-loss exponent."""
+    return float(10 ** ((rssi_at_1m - rssi) / (10.0 * n)))
 
 
 class LiveSession:
@@ -95,11 +95,12 @@ class LiveSession:
         self.reset()
 
     # ---- real readings (Web Bluetooth / any scanner) enter here, same {'r': metres} shape the simulator produces
-    def ingest(self, anchor_id, rssi=None, range_m=None):
+    def ingest(self, anchor_id, rssi=None, range_m=None, rssi_at_1m=-40.0, n=2.2):
         if anchor_id not in {a['id'] for a in self.site.anchors}:
             raise KeyError(anchor_id)
-        r = rssi_to_range(rssi) if range_m is None else float(range_m)
-        self.live[anchor_id] = [max(0.3, r), time.time(), False]
+        r = rssi_to_range(float(rssi), float(rssi_at_1m), float(n)) if range_m is None else float(range_m)
+        self.live[anchor_id] = [max(0.3, r), time.time(), False, None if rssi is None else float(rssi)]
+        self.ingested = getattr(self, 'ingested', 0) + 1
 
     def mode(self):
         now = time.time()

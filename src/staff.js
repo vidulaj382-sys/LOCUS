@@ -39,10 +39,10 @@ const confCls = c => 'pill ' + (c >= 85 ? 'g' : c >= 60 ? 'a' : 'r');
 
 /* ---------- views ---------- */
 function setView(v) {
-  view = v; ['find', 'map', 'alerts'].forEach(k => { $('v-' + k).hidden = k !== v; });
+  view = v; ['find', 'map', 'alerts', 'ble'].forEach(k => { const e = $('v-' + k); if (e) e.hidden = k !== v; });
   document.querySelectorAll('.tabbar button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
-  $('s-h').textContent = v === 'find' ? STAFF[SITE_ID].head : v === 'map' ? 'Live floor map' : 'System health';
-  $('sq').hidden = v !== 'find'; $('schips').hidden = v === 'alerts';
+  $('s-h').textContent = v === 'find' ? STAFF[SITE_ID].head : v === 'map' ? 'Live floor map' : v === 'ble' ? 'Live BLE scan' : 'System health';
+  $('sq').hidden = v !== 'find'; $('schips').hidden = v === 'alerts' || v === 'ble';
   if (v === 'alerts') { deadSeen = cfg.dead.size; $('badge').hidden = true; } renderAll();
 }
 function renderChips() { const b = $('schips'); b.innerHTML = STAFF[SITE_ID].cats.map(c => `<button class="chip" aria-pressed="${c === cat}">${c}</button>`).join(''); b.querySelectorAll('button').forEach(x => x.onclick = () => { cat = x.textContent; renderChips(); renderAll(); }); }
@@ -76,6 +76,8 @@ function updateLive() {
   } else if (view === 'map') {
     drawMini($('fmap'), null, true); const it = ITEMS.find(i => i.id === selId), inf = itemInfo(it);
     $('msel').innerHTML = `<div class="row"><div><b>${it.name}</b><small>${inf.zone} · about ${Math.round(rlen(route(inf.pos)))} m from you</small></div><span class="${confCls(inf.conf)}">${inf.conf}% sure</span></div>`;
+  } else if (view === 'ble') {
+    if (typeof BLE !== 'undefined') BLE.render();
   } else {
     const o = frame.out, online = anchors.length - cfg.dead.size;
     $('hsum').innerHTML = `<b>${online} of ${anchors.length} anchors online</b><small>${cfg.dead.size ? 'Accuracy reduced near offline anchors. Maintenance notified.' : 'All anchors healthy.'}</small>`;
